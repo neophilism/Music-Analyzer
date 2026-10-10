@@ -3,6 +3,7 @@
 import json
 import sqlite3
 import time
+import uuid
 from pathlib import Path
 
 from PySide6.QtCore import QSortFilterProxyModel, Qt, QTimer, QUrl
@@ -39,6 +40,15 @@ from PySide6.QtWidgets import (
 from music_analyzer.calibration import fit_intensity_pairs, fit_valence_anchors
 from music_analyzer.domain import AnalysisSettings
 from music_analyzer.emotion import MOODS
+from music_analyzer.exporting import (
+    create_journal,
+    execute_export,
+    load_journal,
+    make_export_plan,
+)
+from music_analyzer.exporting import (
+    undo_export as undo_files,
+)
 from music_analyzer.jobs import BatchRunner
 from music_analyzer.models import (
     default_model_directory,
@@ -911,13 +921,149 @@ class MainWindow(QMainWindow):
             self._switch_project(path)
 
     def export_album(self):
-        QMessageBox.information(self, "Export", "The export stage adds file-operation previews and recovery.")
+        if self.busy:
+            return
+        if not self.album or not self.snapshot or self.album.get("snapshot_id") != self.snapshot["id"] or self.album.get("fingerprint") != fingerprint(self.tracks):
+            self._show_error("Build an order from the current scores before exporting.")
+            return
+        project_id = self.project.metadata("project_id") or uuid.uuid4().hex
+        self.project.set_metadata("project_id", project_id)
+        previous = self.project.metadata("last_export")
+        try:
+            old = load_journal(previous) if previous and Path(previous).exists() else None
+            if old and old["phase"] not in {"complete", "undone"}:
+                raise ValueError("Resume or undo the unfinished export using the Tools menu first.")
+        except (OSError, ValueError) as exc:
+            self._show_error(str(exc))
+            return
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Preview numbered album export")
+        dialog.resize(950, 650)
+        layout = QVBoxLayout(dialog)
+        layout.addWidget(QLabel("Two valence folders retain global album positions. Open album.m3u8 for the combined playing order."))
+        form = QFormLayout()
+        layout.addLayout(form)
+        mode = QComboBox()
+        mode.addItems(["Export Copies", "Organize originals (move after verification)"])
+        form.addRow("Action", mode)
+        parents = {str(Path(t.path).parent) for t in self.tracks if not t.excluded}
+        default_root = old["root"] if old else next(iter(parents)) if len(parents) == 1 else str(self.project.path.parent)
+        destination = QLineEdit(default_root)
+        folder_row = QHBoxLayout()
+        folder_row.addWidget(destination)
+
+        def browse():
+            chosen = QFileDialog.getExistingDirectory(dialog, "Choose the album output folder", destination.text())
+            if chosen:
+                destination.setText(chosen)
+
+        folder_row.addWidget(button("Choose folder…", browse))
+        form.addRow("Folder", folder_row)
+        padded = QCheckBox("Pad numbers for alphabetical sorting (001_ through 200_)")
+        padded.setChecked(True)
+        form.addRow(padded)
+        preview = QPlainTextEdit()
+        preview.setReadOnly(True)
+        preview.setAccessibleName("Original to export filename preview")
+        layout.addWidget(preview)
+        note = QLabel()
+        note.setWordWrap(True)
+        layout.addWidget(note)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        layout.addWidget(buttons)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        current = {}
+
+        def update_preview(*_):
+            current.clear()
+            try:
+                root = Path(destination.text()).expanduser().resolve()
+                prior = previous if old and old["phase"] == "complete" and root == Path(old["root"]) else None
+                plan = make_export_plan(self.tracks, self.scores, self.album, self.snapshot, root, project_id,
+                                        move=bool(mode.currentIndex()), padded=padded.isChecked(), previous_journal=prior)
+                current["plan"] = plan
+                names = {t.id: t.original_name for t in self.tracks}
+                preview.setPlainText("\n".join(f"{names[e['track_id']]}  →  {e['relative']}" for e in plan["files"] if e["kind"] == "audio"))
+                details = [f"{len(self.album['order'])} recordings · {sum(t.excluded for t in self.tracks)} excluded · source audio bytes preserved."]
+                details.extend(plan["warnings"])
+                if plan["move"]:
+                    details.append("Originals are removed only after every output is published and verified. Undo restores original names and locations.")
+                note.setText("\n".join(details))
+                buttons.button(QDialogButtonBox.StandardButton.Ok).setText("Organize originals" if plan["move"] else "Export copies")
+                buttons.button(QDialogButtonBox.StandardButton.Ok).setEnabled(True)
+            except (OSError, ValueError) as exc:
+                preview.setPlainText(str(exc))
+                note.setText("Resolve this conflict before exporting.")
+                buttons.button(QDialogButtonBox.StandardButton.Ok).setEnabled(False)
+
+        destination.textChanged.connect(update_preview)
+        mode.currentIndexChanged.connect(update_preview)
+        padded.toggled.connect(update_preview)
+        update_preview()
+        if dialog.exec() == QDialog.DialogCode.Accepted and "plan" in current:
+            try:
+                path = create_journal(current["plan"])
+                self.project.set_metadata("last_export", str(path))
+                self.player.stop()
+                self._start_task(lambda task: execute_export(path, task.cancel_event, task.progress.emit), self._export_finished)
+            except (OSError, ValueError) as exc:
+                self._show_error(str(exc))
+
+    def _export_finished(self, journal):
+        tracks = {track.id: track for track in self.project.tracks()}
+        for entry in journal["files"]:
+            if entry["kind"] != "audio" or entry["track_id"] not in tracks:
+                continue
+            track = tracks[entry["track_id"]]
+            if journal["phase"] == "undone":
+                path = Path(entry["source"])
+            elif journal["move"] and (entry["source_removed"] or entry["source"] == str(Path(journal["root"]) / entry["relative"])):
+                path = Path(journal["root"]) / entry["relative"]
+            else:
+                continue
+            if path.is_file():
+                stat = path.stat()
+                track.path, track.size, track.mtime_ns = str(path), stat.st_size, stat.st_mtime_ns
+                self.project.save_track(track)
+        if journal["phase"] == "undone":
+            self.project.set_metadata("last_export", journal.get("previous_journal"))
+        self.refresh()
+        if journal["phase"] == "paused":
+            QMessageBox.information(self, "Export paused", "Progress is saved. Use Tools → Resume export or Undo export to continue.")
+        else:
+            QMessageBox.information(self, "Export", "Originals restored." if journal["phase"] == "undone" else f"Export complete. Open album.m3u8 in:\n{journal['root']}")
+
+    def _journal_action(self, undo=False):
+        if self.busy:
+            return
+        path = self.project.metadata("last_export")
+        if not path or not Path(path).exists():
+            path, _ = QFileDialog.getOpenFileName(self, "Choose an export journal", "", "Export journal (*.journal.json)")
+        if not path:
+            return
+        try:
+            journal = load_journal(path)
+            if journal["project_id"] != self.project.metadata("project_id"):
+                raise ValueError("Open the project that created this export before recovering or undoing it.")
+            verb = "Undo" if undo else "Resume"
+            count = sum(e["kind"] == "audio" for e in journal["files"])
+            details = f"{verb} the {count}-recording export in:\n{journal['root']}\n\n"
+            details += "Undo restores moved originals and previous managed exports. Changed or unrelated files are preserved." if undo else "Completed operations are checked and remaining operations continue from the saved journal."
+            if QMessageBox.question(self, f"{verb} export", details) != QMessageBox.StandardButton.Yes:
+                return
+            self.project.set_metadata("last_export", str(path))
+            self.player.stop()
+            operation = undo_files if undo else execute_export
+            self._start_task(lambda task: operation(path, task.cancel_event, task.progress.emit), self._export_finished)
+        except (OSError, ValueError) as exc:
+            self._show_error(str(exc))
 
     def recover_export(self):
-        QMessageBox.information(self, "Recovery", "The export stage adds recovery from a durable journal.")
+        self._journal_action()
 
     def undo_export(self):
-        QMessageBox.information(self, "Undo export", "The export stage adds conflict-aware undo.")
+        self._journal_action(undo=True)
 
     def _show_error(self, message):
         QMessageBox.warning(self, "Music Analyzer", message)
