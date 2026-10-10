@@ -110,7 +110,13 @@ class BatchRunner:
         while self.pending:
             track = self.pending.popleft()
             track.status = "pending"
+            self._preserve_edits(track)
             self.project.save_track(track)
+
+    def _preserve_edits(self, track):
+        current = self.project.track(track.id)
+        if current:
+            track.overrides, track.reviewed, track.excluded = current.overrides, current.reviewed, current.excluded
 
     def poll(self) -> list[dict]:
         events, self.events = self.events, []
@@ -134,6 +140,7 @@ class BatchRunner:
             elif event["type"] == "cancelled":
                 track.status, track.error = "pending", ""
             if event["type"] != "progress":
+                self._preserve_edits(track)
                 self.project.save_track(track)
                 del self.active[track.id]
             events.append(event)
@@ -143,13 +150,30 @@ class BatchRunner:
             for track in [*self.active.values(), *self.pending]:
                 track.status = "pending" if self.cancelled_at else "error"
                 track.error = "" if self.cancelled_at else "Analysis worker exited unexpectedly. Retry this track."
+                self._preserve_edits(track)
                 self.project.save_track(track)
                 events.append({"type": "cancelled" if self.cancelled_at else "error", "id": track.id, "error": track.error})
             self.active.clear()
             self.pending.clear()
         while self.pending and len(self.active) < self.settings.workers and self.cancelled_at is None:
             track = self.pending.popleft()
+            # Another recording with identical bytes may have completed since the
+            # batch started. Reuse its result rather than loading/inferencing again.
+            cached = self.project.cache_get(self.keys[track.id]) if track.sha256 else None
+            try:
+                stat = Path(track.path).stat()
+                unchanged = (stat.st_size, stat.st_mtime_ns) == (track.size, track.mtime_ns)
+            except OSError:
+                unchanged = False
+            if cached is not None and unchanged:
+                track.analysis, track.status, track.error = cached, "complete", ""
+                self._preserve_edits(track)
+                self.project.save_track(track)
+                self.completed += 1
+                events.append({"type": "cached", "id": track.id})
+                continue
             track.status = "analyzing"
+            self._preserve_edits(track)
             self.project.save_track(track)
             self.active[track.id] = track
             self.job_queue.put((track.to_dict(), self.settings.to_dict(), self.model_directory))

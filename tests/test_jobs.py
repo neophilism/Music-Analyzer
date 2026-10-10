@@ -54,3 +54,36 @@ def test_cancel_queued_and_restart(tmp_path):
         runner.start(project.tracks(), AnalysisSettings(model_enabled=False))
         run_to_completion(runner)
         assert project.tracks()[0].status == "complete"
+
+
+def test_duplicate_audio_reuses_result_within_running_batch(tmp_path):
+    sources = [tmp_path / "happy-name.wav", tmp_path / "angry-name.wav"]
+    sf.write(sources[0], np.sin(np.arange(8000) * .1) * .1, 8000)
+    sources[1].write_bytes(sources[0].read_bytes())
+    with Project(tmp_path / "project.ma-project") as project:
+        for source in sources:
+            project.add_track(inspect_track(source))
+        runner = BatchRunner(project)
+        runner.start(project.tracks(), AnalysisSettings(model_enabled=False))
+        events = run_to_completion(runner)
+        assert sum(e["type"] == "complete" for e in events) == 1
+        assert sum(e["type"] == "cached" for e in events) == 1
+        assert project.tracks()[0].analysis == project.tracks()[1].analysis
+
+
+def test_listener_edits_during_analysis_survive_completion(tmp_path):
+    source = tmp_path / "audio.wav"
+    sf.write(source, np.sin(np.arange(16000) * .1) * .1, 8000)
+    with Project(tmp_path / "project.ma-project") as project:
+        track = inspect_track(source)
+        project.add_track(track)
+        runner = BatchRunner(project)
+        runner.start(project.tracks(), AnalysisSettings(model_enabled=False))
+        runner.poll()
+        edited = project.track(track.id)
+        edited.overrides, edited.reviewed, edited.excluded = {"valence": 75, "bucket": "positive"}, True, True
+        project.save_track(edited)
+        run_to_completion(runner)
+        completed = project.track(track.id)
+        assert completed.status == "complete"
+        assert completed.overrides == edited.overrides and completed.reviewed and completed.excluded

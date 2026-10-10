@@ -25,3 +25,9 @@ jobs:
       - run: python -m pip install -e '.[dev]'
       - run: python -m ruff check .
       - run: python -m pytest
+      - name: Benchmark 200 mixed-format fixtures
+        run: python -m music_analyzer.benchmark --output benchmark-output/ci-200
+      - uses: actions/upload-artifact@v4
+        with:
+          name: batch-200-${{ matrix.os }}
+          path: benchmark-output/ci-200/report.json

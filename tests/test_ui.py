@@ -24,8 +24,15 @@ def test_native_review_override_order_and_project_reopen(app, tmp_path):
     window.refresh()
     window.recalculate()
     assert window.table_model.rowCount() == 4
+    window.bucket_filter.setCurrentIndex(1)
+    assert window.proxy.rowCount() == 2
+    window.bucket_filter.setCurrentIndex(2)
+    assert window.proxy.rowCount() == 2
+    window.bucket_filter.setCurrentIndex(0)
     window.select_track("0")
     window.valence_edit.setValue(72)
+    window.refresh()  # Arrival of another worker result must not discard a typed correction.
+    assert window.valence_edit.value() == 72
     window.apply_override()
     assert window.project.tracks()[0].analysis["valence"] == 80
     assert window.project.tracks()[0].overrides["valence"] == 72

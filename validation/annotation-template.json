@@ -1,0 +1,31 @@
+{
+  "description": "Replace the example record hashes and rights with independently reviewed instrumental recordings. This file contains no evaluation evidence.",
+  "records": [
+    {
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000001",
+      "recording_id": "replace-with-recording-identity-1",
+      "split": "development",
+      "instrumental": true,
+      "license": "replace-with-recording-rights",
+      "source": "replace-with-owner-or-source",
+      "valence": "positive",
+      "mood_family": "joy",
+      "genres": ["classical"],
+      "mode": "major",
+      "key": "C",
+      "bpm": 80
+    },
+    {
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000002",
+      "recording_id": "replace-with-recording-identity-2",
+      "split": "heldout",
+      "instrumental": true,
+      "license": "replace-with-recording-rights",
+      "source": "replace-with-owner-or-source",
+      "valence": "uncertain",
+      "mood_family": "uncertain",
+      "genres": ["ambient"]
+    }
+  ],
+  "intensity_pairs": []
+}

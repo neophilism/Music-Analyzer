@@ -81,11 +81,14 @@ class TrackFilter(QSortFilterProxyModel):
         super().__init__(parent)
         self.review_only = False
         self.query = ""
+        self.bucket = ""
         self.setSortRole(Qt.ItemDataRole.UserRole)
 
     def filterAcceptsRow(self, row, parent):
         model = self.sourceModel()
         track = model.tracks[row]
+        if self.bucket and model.scores.get(track.id, {}).get("bucket") != self.bucket:
+            return False
         if self.review_only and (track.excluded or not (track.status == "error" or model.scores.get(track.id, {}).get("needs_review", True))):
             return False
         return not self.query or self.query.casefold() in " ".join(map(str, model.values(track))).casefold()
@@ -99,6 +102,7 @@ class MainWindow(QMainWindow):
         self.task = None
         self.closing = False
         self.selected_id = None
+        self.review_dirty = self._loading_review = False
         self.tracks, self.scores, self.fractions = [], {}, {}
         self.snapshot = self.project.metadata("snapshot")
         self.album = self.project.metadata("album")
@@ -155,9 +159,14 @@ class MainWindow(QMainWindow):
         self.search = QLineEdit()
         self.search.setPlaceholderText("Find a track, mood, or genre…")
         self.review_filter = QCheckBox("Needs review")
+        self.bucket_filter = QComboBox()
+        self.bucket_filter.addItems(["All valences", "Positive", "Negative"])
+        self.bucket_filter.setAccessibleName("Filter by valence")
         self.search.textChanged.connect(self._filter_changed)
         self.review_filter.toggled.connect(self._filter_changed)
+        self.bucket_filter.currentIndexChanged.connect(self._filter_changed)
         search.addWidget(self.search)
+        search.addWidget(self.bucket_filter)
         search.addWidget(self.review_filter)
         work_layout.addLayout(search)
         self.table_model = TrackTable(self)
@@ -262,6 +271,11 @@ class MainWindow(QMainWindow):
         self.mood_edit = QComboBox()
         self.mood_edit.addItems(["Automatic", *MOODS])
         self.genres_edit = QLineEdit()
+        for editor in (self.bpm_edit, self.valence_edit, self.arousal_edit):
+            editor.valueChanged.connect(self._review_changed)
+        for editor in (self.mode_edit, self.bucket_edit, self.mood_edit):
+            editor.currentIndexChanged.connect(self._review_changed)
+        self.genres_edit.textEdited.connect(self._review_changed)
         for label, editor in (("BPM", self.bpm_edit), ("Positivity 0–100", self.valence_edit), ("Arousal 0–100", self.arousal_edit),
                               ("Mode", self.mode_edit), ("Valence folder", self.bucket_edit), ("Mood", self.mood_edit), ("Genres", self.genres_edit)):
             form.addRow(label, editor)
@@ -331,6 +345,10 @@ class MainWindow(QMainWindow):
     def busy(self):
         return self.runner.running or (self.task is not None and self.task.isRunning())
 
+    @property
+    def review_locked(self):
+        return self.task is not None and self.task.isRunning()
+
     def refresh(self):
         self.tracks = self.project.tracks()
         self.scores = score_tracks(self.tracks, self.snapshot) if self.snapshot else {}
@@ -355,9 +373,11 @@ class MainWindow(QMainWindow):
         self.album_list.setDragEnabled(not busy)
 
     def _filter_changed(self, *_):
+        self.proxy.beginFilterChange()
         self.proxy.query = self.search.text()
         self.proxy.review_only = self.review_filter.isChecked()
-        self.proxy.invalidateFilter()
+        self.proxy.bucket = ["", "positive", "negative"][self.bucket_filter.currentIndex()]
+        self.proxy.endFilterChange(QSortFilterProxyModel.Direction.Rows)
 
     def _selection_changed(self, *_):
         indexes = self.table.selectionModel().selectedRows()
@@ -377,6 +397,7 @@ class MainWindow(QMainWindow):
             self.table.scrollTo(index)
 
     def _inspect(self, track):
+        preserve_edits = self.selected_id == track.id and self.review_dirty
         self.selected_id = track.id
         self.track_heading.setText(track.original_name)
         score = self.scores.get(track.id, {})
@@ -391,13 +412,16 @@ class MainWindow(QMainWindow):
         self.loudness_plot.set_points(track.analysis.get("loudness_curve", []))
         self.tempo_plot.set_points([(r["time"], r["bpm"]) for r in track.analysis.get("tempo_curve", [])])
         self.emotion_plot.set_points([(r["time"], r["valence"]) for r in track.analysis.get("emotion_curve", [])])
-        self.bpm_edit.setValue(track.value("bpm") or 0)
-        self.valence_edit.setValue(score.get("valence") if finite(score.get("valence")) else -1)
-        self.arousal_edit.setValue(track.value("arousal") if finite(track.value("arousal")) else -1)
-        for editor, key in ((self.mode_edit, "mode"), (self.bucket_edit, "bucket"), (self.mood_edit, "mood")):
-            value = track.overrides.get(key, "Automatic")
-            editor.setCurrentText(value)
-        self.genres_edit.setText(", ".join(track.value("genres", [])))
+        if not preserve_edits:
+            self._loading_review = True
+            self.bpm_edit.setValue(track.value("bpm") or 0)
+            self.valence_edit.setValue(score.get("valence") if finite(score.get("valence")) else -1)
+            self.arousal_edit.setValue(track.value("arousal") if finite(track.value("arousal")) else -1)
+            for editor, key in ((self.mode_edit, "mode"), (self.bucket_edit, "bucket"), (self.mood_edit, "mood")):
+                value = track.overrides.get(key, "Automatic")
+                editor.setCurrentText(value)
+            self.genres_edit.setText(", ".join(track.value("genres", [])))
+            self._loading_review = self.review_dirty = False
         self.pin_button.setText("Unpin album position" if track.id in self.pins else "Pin current album position")
         details = {key: track.analysis.get(key) for key in ("genre_candidates", "mood_candidates", "key_candidates", "tempo_reliability", "valence_reliability", "model_coverage", "review_reasons", "warnings")}
         details["missing_intensity_components"] = score.get("missing_components", [])
@@ -407,8 +431,12 @@ class MainWindow(QMainWindow):
     def selected_track(self):
         return next((t for t in self.tracks if t.id == self.selected_id), None)
 
+    def _review_changed(self, *_):
+        if not self._loading_review:
+            self.review_dirty = True
+
     def _save_edited_track(self, track):
-        if self.busy:
+        if self.review_locked:
             self.refresh()
             return
         self.project.save_track(track)
@@ -537,7 +565,7 @@ class MainWindow(QMainWindow):
             self._show_error(str(exc))
 
     def accept_suggested(self):
-        if self.busy:
+        if self.review_locked:
             return
         for track in self.tracks:
             if not track.excluded and track.status == "complete" and finite(track.value("valence")):
@@ -547,7 +575,7 @@ class MainWindow(QMainWindow):
 
     def apply_override(self):
         track = self.selected_track()
-        if not track or self.busy:
+        if not track or self.review_locked:
             return
         track.overrides["bpm"] = self.bpm_edit.value() or None
         track.overrides["valence"] = self.valence_edit.value() if self.valence_edit.value() >= 0 else None
@@ -559,13 +587,15 @@ class MainWindow(QMainWindow):
             else:
                 track.overrides[key] = editor.currentText()
         track.reviewed = True
+        self.review_dirty = False
         self.project.save_track(track)
         self.refresh()
 
     def reset_override(self):
         track = self.selected_track()
-        if track and not self.busy:
+        if track and not self.review_locked:
             track.overrides, track.reviewed = {}, False
+            self.review_dirty = False
             self.project.save_track(track)
             self.refresh()
 
@@ -981,7 +1011,7 @@ class MainWindow(QMainWindow):
                 root = Path(destination.text()).expanduser().resolve()
                 prior = previous if old and old["phase"] == "complete" and root == Path(old["root"]) else None
                 plan = make_export_plan(self.tracks, self.scores, self.album, self.snapshot, root, project_id,
-                                        move=bool(mode.currentIndex()), padded=padded.isChecked(), previous_journal=prior)
+                                        move=bool(mode.currentIndex()), padded=padded.isChecked(), previous_journal=prior, include_reports=False)
                 current["plan"] = plan
                 names = {t.id: t.original_name for t in self.tracks}
                 preview.setPlainText("\n".join(f"{names[e['track_id']]}  →  {e['relative']}" for e in plan["files"] if e["kind"] == "audio"))
@@ -1003,10 +1033,20 @@ class MainWindow(QMainWindow):
         update_preview()
         if dialog.exec() == QDialog.DialogCode.Accepted and "plan" in current:
             try:
-                path = create_journal(current["plan"])
+                from music_analyzer.exporting import journal_path
+
+                preview_plan = current["plan"]
+                plan = make_export_plan(self.tracks, self.scores, self.album, self.snapshot, preview_plan["root"], project_id,
+                                        move=preview_plan["move"], padded=padded.isChecked(), previous_journal=preview_plan["previous_journal"])
+                path = journal_path(plan)
                 self.project.set_metadata("last_export", str(path))
                 self.player.stop()
-                self._start_task(lambda task: execute_export(path, task.cancel_event, task.progress.emit), self._export_finished)
+
+                def export(task):
+                    create_journal(plan)
+                    return execute_export(path, task.cancel_event, task.progress.emit)
+
+                self._start_task(export, self._export_finished)
             except (OSError, ValueError) as exc:
                 self._show_error(str(exc))
 

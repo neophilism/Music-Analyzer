@@ -150,7 +150,7 @@ def _reports(tracks, scores, album, snapshot, mappings, export_id):
 
 
 def make_export_plan(tracks, scores, album, snapshot, root, project_id, *, move=False,
-                     padded=True, previous_journal=None):
+                     padded=True, previous_journal=None, include_reports=True):
     """Build the complete preview without touching audio. Hash preflight runs in the worker."""
     root = Path(root).expanduser().resolve()
     if not root.is_dir():
@@ -197,7 +197,8 @@ def make_export_plan(tracks, scores, album, snapshot, root, project_id, *, move=
                                  "relative": relative, "sha256": track.sha256, "size": track.size,
                                  "stage": f"file-{len(journal['files'])}", "state": "pending",
                                  "source_removed": False})
-    for name, payload in _reports(tracks, scores, album, snapshot, mappings, export_id).items():
+    reports = _reports(tracks, scores, album, snapshot, mappings, export_id) if include_reports else dict.fromkeys(sorted(REPORTS), "")
+    for name, payload in reports.items():
         content = payload.encode("utf-8")
         journal["files"].append({"kind": "report", "relative": name, "payload": payload,
                                  "sha256": hashlib.sha256(content).hexdigest(), "size": len(content),
@@ -228,6 +229,23 @@ def create_journal(plan):
     path = journal_path(plan)
     if _exists(path):
         raise FileExistsError(path)
+    # Large analysis reports are persisted once, outside the repeatedly fsynced
+    # operation journal. Journal size depends on file count, not waveform detail.
+    stage = _stage_directory(plan)
+    for entry in plan["files"]:
+        if entry["kind"] != "report":
+            continue
+        payload = entry.pop("payload")
+        if entry["keep_existing"]:
+            continue
+        temporary = stage / entry["stage"]
+        with temporary.open("xb") as stream:
+            stream.write(payload.encode("utf-8"))
+            stream.flush()
+            os.fsync(stream.fileno())
+        _check_hash(temporary, entry["sha256"])
+        entry["identity"], entry["state"] = _identity(temporary), "staged"
+    _sync_directory(stage)
     _save(plan, path)
     return path
 
