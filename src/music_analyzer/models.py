@@ -3,10 +3,12 @@
 import json
 import os
 import shutil
+import ssl
 import urllib.request
 from importlib.resources import files
 from pathlib import Path
 
+import certifi
 import numpy as np
 from platformdirs import user_data_dir
 
@@ -73,7 +75,9 @@ def install_model(directory: str | Path, progress=lambda *_: None, cancelled=lam
             raise ValueError("Invalid temporary model path.")
         url = f"https://huggingface.co/{manifest['model_id']}/resolve/{manifest['revision']}/{asset['name']}"
         try:
-            with urllib.request.urlopen(url, timeout=20) as response, partial.open("wb") as target:
+            context = ssl.create_default_context()
+            context.load_verify_locations(cafile=certifi.where())
+            with urllib.request.urlopen(url, timeout=20, context=context) as response, partial.open("wb") as target:
                 while block := response.read(1024 * 1024):
                     if cancelled():
                         raise InterruptedError("Model installation cancelled; verified assets were retained.")

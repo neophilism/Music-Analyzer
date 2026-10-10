@@ -1,5 +1,9 @@
 name: Tests
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -31,3 +35,85 @@ jobs:
         with:
           name: batch-200-${{ matrix.os }}
           path: benchmark-output/ci-200/report.json
+  mac-package:
+    needs: core
+    runs-on: macos-14
+    timeout-minutes: 45
+    env:
+      QT_QPA_PLATFORM: offscreen
+      OMP_NUM_THREADS: '1'
+      NUMBA_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.15'
+          cache: pip
+      - run: python -m pip install -e '.[dev,models]'
+      - name: Install pinned model explicitly
+        run: python -m music_analyzer --install-model model-pack
+      - name: Test actual offline predictions and filename independence
+        env:
+          HF_HUB_OFFLINE: '1'
+          TRANSFORMERS_OFFLINE: '1'
+          MUSIC_ANALYZER_TEST_MODEL: model-pack
+        run: python -m pytest tests/test_models.py
+      - name: Collect notices and exact build dependencies
+        run: |
+          mkdir -p artifacts
+          python packaging/collect_notices.py
+          python -m pip freeze --exclude-editable > artifacts/macos-arm64-build-requirements.txt
+          cat artifacts/macos-arm64-build-requirements.txt
+          python -m PyInstaller --clean --noconfirm packaging/desktop.spec
+      - name: Verify frozen GUI, worker, and offline model
+        env:
+          HF_HUB_OFFLINE: '1'
+          TRANSFORMERS_OFFLINE: '1'
+          PYTHONNOUSERSITE: '1'
+        run: |
+          unset PYTHONPATH PYTHONHOME VIRTUAL_ENV
+          "dist/Music Analyzer.app/Contents/MacOS/MusicAnalyzer" --verify-package --model-directory "$PWD/model-pack" --verification-report artifacts/macos-14-frozen.json
+          cat artifacts/macos-14-frozen.json
+          codesign --verify --deep --strict --verbose=2 "dist/Music Analyzer.app"
+          ditto -c -k --sequesterRsrc --keepParent "dist/Music Analyzer.app" artifacts/Music-Analyzer-macos-arm64-unsigned-review.zip
+          cp -R build/third-party-notices artifacts/third-party-notices
+          shasum -a 256 artifacts/Music-Analyzer-macos-arm64-unsigned-review.zip > artifacts/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-arm64-review
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30
+  mac-clean-install:
+    needs: mac-package
+    runs-on: macos-15
+    timeout-minutes: 20
+    env:
+      QT_QPA_PLATFORM: offscreen
+      OMP_NUM_THREADS: '1'
+      NUMBA_NUM_THREADS: '1'
+      PYTHONNOUSERSITE: '1'
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: macos-arm64-review
+          path: review-build
+      - name: Unpack and install model using the packaged application
+        run: |
+          unset PYTHONPATH PYTHONHOME VIRTUAL_ENV
+          ditto -x -k review-build/Music-Analyzer-macos-arm64-unsigned-review.zip installed
+          "installed/Music Analyzer.app/Contents/MacOS/MusicAnalyzer" --install-model "$PWD/model-pack"
+      - name: Verify offline without installing developer Python dependencies
+        env:
+          HF_HUB_OFFLINE: '1'
+          TRANSFORMERS_OFFLINE: '1'
+        run: |
+          unset PYTHONPATH PYTHONHOME VIRTUAL_ENV
+          "installed/Music Analyzer.app/Contents/MacOS/MusicAnalyzer" --verify-package --model-directory "$PWD/model-pack" --verification-report macos-15-clean-install.json
+          cat macos-15-clean-install.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-15-clean-install-verification
+          path: macos-15-clean-install.json

@@ -1,0 +1,128 @@
+{
+  "checked_on": "2026-10-10",
+  "scope": "PR-triggered Tests workflow at each repaired branch head; Linux and macOS matrix",
+  "root_causes": [
+    "PR02–PR13: Linux runner missing libEGL.so.1 required by Qt",
+    "PR14: tests assumed case/Unicode collisions were detected only during execution; macOS correctly rejects them during preview"
+  ],
+  "repairs": [
+    "Install libegl1, libopengl0, libpulse0 and ffmpeg on Linux before desktop tests",
+    "Test collision rejection across preview and execution while checking unrelated bytes survive",
+    "Carry repairs through the dependent branches using fast-forward commits that retain upstream ancestry"
+  ],
+  "documentation_only_pr": 1,
+  "runs": [
+    {
+      "pr": 2,
+      "branch": "pr02-native-foundation",
+      "head_sha": "e0eadf86d8858684986512b76ce73e5285494328",
+      "workflow_run": 38064671399,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064671399"
+    },
+    {
+      "pr": 3,
+      "branch": "pr03-project-import",
+      "head_sha": "93937b3948623175edf772d514c35f806d53882c",
+      "workflow_run": 38064688559,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064688559"
+    },
+    {
+      "pr": 4,
+      "branch": "pr04-resumable-workers",
+      "head_sha": "771b89a2777f89e0707b2ef52f5c5830ffac99b2",
+      "workflow_run": 38064698951,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064698951"
+    },
+    {
+      "pr": 5,
+      "branch": "pr05-streaming-dynamics",
+      "head_sha": "ee222b1aabb369e8a15a667065b48c561f2dc18a",
+      "workflow_run": 38064710139,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064710139"
+    },
+    {
+      "pr": 6,
+      "branch": "pr06-local-tempo",
+      "head_sha": "1ba734c36c8fac1b11eab328d76f07e108555223",
+      "workflow_run": 38064719533,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064719533"
+    },
+    {
+      "pr": 7,
+      "branch": "pr07-tonal-mode",
+      "head_sha": "247c1ef2438593b9363cc1512a1cf10cee799986",
+      "workflow_run": 38064735176,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064735176"
+    },
+    {
+      "pr": 8,
+      "branch": "pr08-offline-genres",
+      "head_sha": "9505cb3c1dc3de889848cd812719a3206ad782db",
+      "workflow_run": 38064744773,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064744773"
+    },
+    {
+      "pr": 9,
+      "branch": "pr09-instrumental-emotion",
+      "head_sha": "613827004308deb4b7cd4d286ee35e25670f8a1f",
+      "workflow_run": 38064754768,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064754768"
+    },
+    {
+      "pr": 10,
+      "branch": "pr10-normalized-scales",
+      "head_sha": "58895205ae74e60d0c6f72396cf8dbce3326d79f",
+      "workflow_run": 38064765771,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064765771"
+    },
+    {
+      "pr": 11,
+      "branch": "pr11-album-sequencing",
+      "head_sha": "a55cc80298ff3c2da17ee6f9f26cd74c4f37c2ce",
+      "workflow_run": 38064779920,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064779920"
+    },
+    {
+      "pr": 12,
+      "branch": "pr12-review-interface",
+      "head_sha": "3e2cf15fefba1b39d00e0cdefb5aba8868b597d9",
+      "workflow_run": 38064802151,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064802151"
+    },
+    {
+      "pr": 13,
+      "branch": "pr13-personal-calibration",
+      "head_sha": "0b43f8bd2ab1386624a1b2f0aae7b12689736514",
+      "workflow_run": 38064821486,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064821486"
+    },
+    {
+      "pr": 14,
+      "branch": "pr14-numbered-export",
+      "head_sha": "f9b1e6fd4ca2cf92e07381c32b74b870964907e1",
+      "workflow_run": 38064853685,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064853685"
+    },
+    {
+      "pr": 15,
+      "branch": "pr15-batch-evaluation",
+      "head_sha": "6fd8607476019000d017052675c9271ec615c69c",
+      "workflow_run": 38064866237,
+      "conclusion": "success",
+      "url": "https://github.com/neophilism/Music-Analyzer/actions/runs/38064866237"
+    }
+  ]
+}
