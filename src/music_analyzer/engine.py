@@ -9,6 +9,7 @@ import numpy as np
 from music_analyzer import ANALYSIS_VERSION
 from music_analyzer.audio import decoded_audio, file_hash, iter_audio_chunks
 from music_analyzer.domain import AnalysisSettings
+from music_analyzer.loudness import LoudnessMeter
 
 
 class AnalysisCancelled(Exception):
@@ -32,14 +33,12 @@ def analyze_track(track: dict, settings: dict, model_directory: str, cancel, pro
     if file_hash(source) != track["sha256"]:
         raise ValueError("Source content changed since import. Remove and reimport this recording.")
     waveform = []
-    square_sum, sample_count, peak = 0.0, 0, 0.0
     with decoded_audio(source, options.ffmpeg_path) as audio:
+        meter = LoudnessMeter(audio.samplerate, audio.channels)
         for start, data in iter_audio_chunks(audio, options.chunk_seconds):
             if cancel.is_set():
                 raise AnalysisCancelled()
-            square_sum += float(np.sum(data.astype(np.float64) ** 2))
-            sample_count += data.size
-            peak = max(peak, float(np.max(np.abs(data))))
+            meter.feed(data)
             # At most 2000 envelope bins, irrespective of recording duration.
             bin_size = max(1, int(audio.frames / 2000))
             for offset in range(0, len(data), bin_size):
@@ -48,7 +47,5 @@ def analyze_track(track: dict, settings: dict, model_directory: str, cancel, pro
             progress(min(0.98, (start + len(data) / audio.samplerate) / track["duration"]), "Audio measurements")
     if file_hash(source) != track["sha256"]:
         raise ValueError("Source changed while it was being analyzed; the result was discarded.")
-    rms = np.sqrt(square_sum / max(sample_count, 1))
-    return {"duration": track["duration"], "rms_dbfs": float(20 * np.log10(max(rms, 1e-12))),
-            "peak_dbfs": float(20 * np.log10(max(peak, 1e-12))), "waveform": waveform,
-            "analysis_version": ANALYSIS_VERSION, "warnings": ["Acoustic feature pipeline is being established."]}
+    return {**meter.finish(), "duration": track["duration"], "waveform": waveform,
+            "analysis_version": ANALYSIS_VERSION, "warnings": []}
