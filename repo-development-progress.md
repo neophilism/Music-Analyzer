@@ -71,9 +71,14 @@ in its approved plan. Do not convert it to a web service.
 | Fresh merge evidence | Run 38070372930: Linux core, macOS core, mac-package and mac-clean-install all completed successfully on f91860fb |
 | Reviews | No reviews, unresolved review threads or requested reviewers; clean mergeability checked; draft marked ready after CI passed |
 | Policy | main unprotected, empty required contexts; private-plan rulesets unavailable. All four workflow gates enforced anyway |
-| Post-merge CI | Not yet verified; inspect merge SHA workflow runs |
+| Post-merge CI | VERIFIED: run 38070930610 on merge 50b0c3c; all four jobs successful |
 | Conditional PR17-PR18 | Not activated; require inadequate-baseline evidence and cleared labeled data |
 | Release | NOT complete; no public release or signing operation performed |
+
+Post-merge successful job IDs: Linux core 114268009938; macOS core 114268010090;
+mac-package 114268372835; mac-clean-install 114269071198. A previously recorded
+run identifier 38072411502 could not be resolved; the live merge-SHA query and
+all four job results establish 38070930610 as the actual post-merge run.
 
 The initial package run 38066288991 failed because Python 3.12.15 was unavailable
 on macOS 14 arm64. The earlier unsigned fix omitted the manual signing workflow;
@@ -90,21 +95,60 @@ appearance and accessibility; final linked-library replacement audit; Apple
 credentials and actual signing/notarization/Gatekeeper. Synthetic fixtures and
 unsigned package checks do not satisfy these gates.
 
-## Security standard: partial dependency audit
+## Security standard: AUD08 repair active, not merged
 
 End-To-End-Everywhere-Security-Architecture-Standard is public, not a fork, created
-2026-10-06T15:08:54Z. Original plan design basis October 6; pre-October commit
-history still needs checking before modification. No AGENTS.md found in inspected
-main recursive tree. CONTRIBUTING.md requires reviewable changes, tests, affected
-contracts, ADRs for disputes, and no unreviewed crypto.
+2026-10-06T15:08:54Z. Original plan design basis October 6. The default-branch
+commits query ending 2026-09-30T23:59:59Z returned an empty list, supporting the
+October start. No AGENTS.md found in the inspected tree. CONTRIBUTING.md requires
+reviewable changes, tests, affected contracts, ADRs for disputes, and no unreviewed
+crypto. Read the live source rather than relying on stale summarized file names.
 
 Observed main `6ec85d51f9207da31f0e90fd8a7c82ffff8448f6`. AUD01-07 implemented,
-independent review pending. Existing AUD08 PR62 on `agent/aud-08-identity-recovery`,
-head `16a57306dd474d3e4f973f5acd8ff7b931837296`, last observed update
-2026-10-10T16:07:33Z; reuse, do not duplicate or race another worker.
-Standard CI run 38065429663 reports success at that head. Code review remains
-in progress: inspect malformed-input handling and full transition/proof binding;
-no defect repair or security approval is claimed yet. No changes made here yet.
+independent review pending. Existing AUD08 PR62 on `agent/aud-08-identity-recovery`
+was reused. Prior head `16a57306dd474d3e4f973f5acd8ff7b931837296` had no comments
+or recorded competing activity after its 16:07:33Z update; coordination comment
+6100223381 records this repair. Old green CI does not approve the repaired head.
+
+Current repair commit: `70bff4f97ac198f1ed5a764198879b939fe1e872`.
+Tree: `8077d6037b41971a560f6606a25fdbb495f847f0`.
+The branch moved non-force with expected-head guard from 16a57306.
+
+### Reproduced defects and repairs
+
+1. Five enum membership checks raised TypeError on JSON lists/dicts. The baseline
+   regression produced 20 exception cases and one CLI traceback failure. String
+   guards now return structured invalid results without weakening policy checks.
+2. Mutating event.resulting_state_hash while keeping the verified authorizers
+   unchanged was accepted as recovered-identity. Every verified authorizer must
+   now explicitly bind that exact hash; missing/malformed/mismatched bindings
+   fail, and a mismatched contact cannot count toward threshold.
+
+Updated evaluator, event schema, both positive event fixtures, existing server-
+authority regression, ADR0045, and two new test modules. Local focused result:
+17 tests passed, including all 9 original recovery tests, 35 malformed-enum
+subcases, both recovery modes, exact-result binding and schema parity. Full
+repository CI is still required; a local full clone was blocked by DNS failure.
+No independent security review, production eligibility or release is asserted.
+
+### Temporary manifest helper: MUST REMOVE BEFORE MERGE
+
+The current repair commit includes `.github/workflows/recovery-manifest-bootstrap.yml`.
+It is restricted to this same-repository PR62/head branch, pins the existing
+checkout/setup actions, and has a job-scoped contents-write token solely to store
+a Git blob. It does not update branches, tags, PRs or releases. The helper removes
+itself from its checkout, verifies exactly the eight reviewed changed-file hashes
+against the prior manifest, then calls the existing development-manifest builder.
+It preserves the archived candidate and ordinary validation workflow. The regular
+integrity check is expected to reject the intermediate stale manifest.
+
+Next: inspect the helper run and obtain its verified DEVELOPMENT_MANIFEST_BLOB.
+Create a final tree from 8077d603 with that blob at
+`release/0.9.0-rc.2-dev-manifest.json` and delete the temporary helper in the same
+commit. Do not modify the eight product files after manifest generation without
+regenerating it. Then require fresh full validation/unit/cross-language/adversarial
+CI, review gates and clean mergeability at the exact final SHA. Never merge the
+intermediate helper commit, bypass the integrity check, or retain its write job.
 
 Original PR49 and stacked PR50 retain actual independent-expert/release gates;
 CI alone cannot clear them. Source implementation is not independent audit.
@@ -152,12 +196,22 @@ Source: docs/AUDIT_REMEDIATION_PLAN.md. Full portfolio graph is not complete.
     merge succeeded as 50b0c3cb11d8934c3123932e3bb458c86518c0a4. Release gates stay open.
 11. 2026-10-10: Updated enabled hourly task to read this canonical branch and
     recognize PR16 as merged rather than duplicate it.
+12. 2026-10-10: Verified no pre-October default-branch commits for the security
+    standard; reproduced malformed-enum and unbound-result-state defects in AUD08.
+13. 2026-10-10: Repaired both defects; all 17 focused tests passed. Updated schema,
+    fixtures and ADR; recorded coordination on existing PR62 rather than duplicating.
+14. 2026-10-10: Pushed repair 70bff4f non-force with expected-head guard. Temporary
+    manifest-only helper is pending; intermediate commit is explicitly not mergeable
+    under this execution policy until helper removal, manifest refresh and fresh CI.
+15. 2026-10-10: Verified all four Music-Analyzer post-merge jobs successful in the
+    actual run 38070930610 at merge 50b0c3c. Release-only blockers remain unchanged.
 
 ## Next execution
 
-Read this canonical file and live state first. Verify Music-Analyzer post-merge CI;
-retain external release blockers. Finish start/history and source review for the
-existing AUD08 PR before modifying/merging it, checking concurrent activity.
-Continue full candidate instructions/plans/dependency reconciliation and highest-
-priority unblocked implementation. Record exact heads/tests/PRs/merges/blockers
-here after each material transition. Do not declare the portfolio complete.
+Read this canonical file and live state first. Complete the AUD08 helper/manifest
+transition and remove the temporary workflow, then inspect full CI and review
+before any merge. Music-Analyzer PR16 and post-merge CI are complete; retain its
+external release blockers. Continue candidate instructions/plans/start-history
+and dependency reconciliation, then the highest-priority unblocked implementation.
+Record exact heads/tests/PRs/merges/blockers after each material transition.
+Do not declare the portfolio complete.
