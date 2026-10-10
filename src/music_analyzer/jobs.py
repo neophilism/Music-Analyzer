@@ -4,6 +4,7 @@ import multiprocessing as mp
 import queue
 import time
 from collections import deque
+from pathlib import Path
 
 from music_analyzer.domain import AnalysisSettings, Track
 from music_analyzer.engine import AnalysisCancelled, analyze_track, cache_key
@@ -76,6 +77,13 @@ class BatchRunner:
             key = cache_key(track.sha256, settings, model_identity)
             self.keys[track.id] = key
             cached = self.project.cache_get(key) if track.sha256 else None
+            try:
+                stat = Path(track.path).stat()
+                unchanged = (stat.st_size, stat.st_mtime_ns) == (track.size, track.mtime_ns)
+            except OSError:
+                unchanged = False
+            if not unchanged:
+                cached = None
             if cached is not None:
                 track.analysis, track.status, track.error = cached, "complete", ""
                 self.project.save_track(track)
