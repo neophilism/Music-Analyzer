@@ -9,6 +9,7 @@ import numpy as np
 from music_analyzer import ANALYSIS_VERSION
 from music_analyzer.audio import decoded_audio, file_hash, iter_audio_chunks
 from music_analyzer.domain import AnalysisSettings
+from music_analyzer.emotion import summarize_emotion
 from music_analyzer.loudness import LoudnessMeter
 from music_analyzer.models import get_backend, model_identity, summarize_genres
 from music_analyzer.rhythm import mono_resample, summarize_tempo, tempo_windows
@@ -88,6 +89,7 @@ def analyze_track(track: dict, settings: dict, model_directory: str, cancel, pro
                 for key in ("onset_rate", "density_raw")}
     return {**meter.finish(), **summarize_tempo(tempos), **summarize_tonality(tonal_segments), **features,
             **summarize_genres(model_segments), "model_segments": model_segments,
+            **summarize_emotion(model_segments, track["duration"]),
             "model_identity": model_identity() if model_segments else None,
             "duration": track["duration"], "waveform": waveform,
             "analysis_version": ANALYSIS_VERSION, "warnings": warnings}
