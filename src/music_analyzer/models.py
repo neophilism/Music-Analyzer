@@ -11,8 +11,9 @@ import numpy as np
 from platformdirs import user_data_dir
 
 from music_analyzer.audio import file_hash
+from music_analyzer.emotion import mood_prompts
 
-PROMPT_VERSION = "genres-1"
+PROMPT_VERSION = "genres-moods-1"
 GENRES = ["classical", "orchestral soundtrack", "solo piano", "ambient", "jazz", "blues",
           "acoustic folk", "country", "rock", "hard rock", "heavy metal", "death metal",
           "black metal", "progressive metal", "punk", "electronic dance", "techno",
@@ -91,9 +92,10 @@ def install_model(directory: str | Path, progress=lambda *_: None, cancelled=lam
 
 
 def prompts():
-    return {genre: [f"This is an instrumental {genre} music recording.",
+    genres = {genre: [f"This is an instrumental {genre} music recording.",
                     f"The sound of {genre} music, without singing.",
                     f"An instrumental piece in the style of {genre}."] for genre in GENRES}
+    return {**genres, **mood_prompts()}
 
 
 class ClapBackend:
