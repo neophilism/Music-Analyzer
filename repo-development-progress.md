@@ -1,95 +1,103 @@
 # Repository development progress
 
-## Canonical continuation and retained history
+## Canonical continuation and immutable history
 
-This file on private `neophilism/Music-Analyzer`, branch
-`agent/repo-development-progress`, is the canonical operational checkpoint.
-Read the complete baseline at immutable commit
-**06b6f310329a4b8b760b7dced7d10e23a4f6ca8e**, same repository/path, for the27-candidate
-inventory, applicable rules, exact Music/AUD08 evidence, partial dependency graph,
-and transitions1-22 through its linked history. Preserve that history. Current
-updates below supersede pending-head instructions, not the scope or safety rules.
-The originally requested ledger was not found; this is an explicit reconstruction.
-Hourly continuation is enabled; a schedule is not proof of development completion.
+Read this file on private neophilism/Music-Analyzer branch
+`agent/repo-development-progress`. Main/product snapshots can be stale. Hourly
+continuation reads this branch; scheduling is not proof of completion.
 
-## Scope and merge contract
+Read the complete baseline at commit06b6f310329a4b8b760b7dced7d10e23a4f6ca8e,
+same repository/path, for all27 candidates, full scope/rules, Music/AUD08 evidence,
+partial dependency graph and transitions1-22 through linked history. Commit
+da5235c69d5bb0df12d1e673572f4c3a950d9204 preserves transitions23-24 and the first
+AUD09.1 helper failure/repair evidence. Preserve both histories; current status
+below supersedes their pending instructions. The original requested ledger was
+not found in inspected sources; this is a transparent reconstruction, not claimed
+recovery of unseen history.
 
-Rediscover/paginate neophilism's rolling two-calendar-month set, intersect with
-projects started on/after2026-10-01, and verify creation/history. Never modify
+## Scope and gates
+
+Rediscover/paginate neophilism's rolling two-calendar-month set and intersect with
+projects started on/after2026-10-01; verify history before edits. Never modify
 Garden/The-Garden, NFT-Minting-Console, Cornerstone/The-Cornerstone, Galinsky2028/
 Galinsky-2028, FOIA Bias Analysis or Send FOIA Log Requests, including normalized
-variants. The first four have concurrent developers. Pre-October projects remain
-excluded despite recent activity. Keep the portfolio inventory private.
+variants. First four have concurrent developers. Pre-October projects stay excluded.
+Keep the inventory private. Other25 candidate full audits remain incomplete.
 
-Read AGENTS.md and complete plans/dependencies; reuse existing work and check
-active workers. Use the smallest coherent unblocked change with tests/docs,
-non-force expected-head updates and SHA-guarded merges. Every required current-head
-check, review and security gate must pass with clean mergeability. Never disable
-tests, invent evidence, overwrite concurrent work, self-approve independent audit,
-or publish releases without separate authorization. Record material transitions.
+Read applicable AGENTS.md, full plans/dependencies and active-worker state. Reuse
+existing PRs. Implement smallest coherent unblocked changes with tests/docs,
+non-force expected-head updates and SHA-guarded merges. Require every current-head
+check/review/security gate and clean mergeability. Never weaken tests, fabricate
+evidence, self-approve independent audit, overwrite concurrent work or publish
+releases without separate authorization. Record each material transition and
+continue unrelated unblocked work around external gates.
 
-## Completed and still-blocked milestones
+## Verified milestones and retained release blockers
 
 Music PR16 merged50b0c3cb11d8934c3123932e3bb458c86518c0a4; pre-merge38070372930
-and post-merge38070930610 passed all4jobs. Native app source/package milestone is
-complete, not release validation: held-out audio/owner anchors, full-length16GBMac
-performance, manual playback/accessibility, linked-library audit and actual Apple
-signing/notarization/Gatekeeper remain open. Conditional PR17-18 not activated
-without inadequate-baseline evidence and cleared labels.
+and post-merge38070930610 each passed all4jobs. Release remains open: held-out
+instrumental labels/intensity/owner anchors, full-length16GBMac performance,
+manual playback/accessibility, linked-library replacement audit and actual Apple
+signing/notarization/Gatekeeper. Conditional PR17-18 require inadequate-baseline
+evidence and cleared labels. Do not duplicate PR16 or claim unsigned tests sign it.
 
-Security AUD08 PR62 merged30a2a91e2369d5703823b6721d5460b171c3b540; full final-head
-CI38071966254 and post-merge38072242615 passed. Its temporary helper is deleted.
-Independent protocol review remains pending; PR49/50 release gates stay blocked.
-Other25 candidate instruction/start-history/plan/dependency audits remain incomplete.
+Security AUD08 PR62 merged30a2a91e2369d5703823b6721d5460b171c3b540 after full
+CI38071966254; post-merge38072242615 passed. Its helper was removed. Independent
+review/publication PR49/50 remain blocked; reference mechanisms are development-only.
 
-## Active AUD09.1 PR63
+## AUD09.1 PR63: final head pending full CI
 
-Branch `agent/aud-09-persist-invalidation`; current head
-**21d419fe77911bf863f0b998d8d359b7832254cb**, tree
-**a5032711c7283293a7397e5d0793e3878a814763**. Draft, not mergeable under this execution
-policy until final source/manifest installation, helper deletion, full CI and review.
-Base30a2a91. Prior initial headac9742a13159c1bcb894f037e758cd4e37fdfe40.
+Branch agent/aud-09-persist-invalidation. **Final head37a979dcb9ab4104564d1400631b7281014a4bb0**,
+final tree01c4f0180dfd34bd1dfd2a2adf5620d6064ebf8f. Expected-head push from
+21d419fe77911bf863f0b998d8d359b7832254cb succeeded. PR remains draft pending full
+final-head checks, review and clean mergeability.
 
-Seven new real-fixture regression methods cover invalidated records, change-and-
-return, fresh confirmation, silent-confirmation rejection, malformed input and
-normal account-root subordinate changes. The intended seven-line fix preserves
-invalidated status even when the subject matches; the spec clarifies fresh explicit
-comparison and caller-owned atomic persistence. Remaining full AUD09 work is
-recorded in docs/AUD09_IMPLEMENTATION_STATUS.md; this is only sliceAUD09.1.
+The code now preserves an explicitly invalidated record even when its old subject
+matches again. Spec requires a fresh explicit out-of-band comparison and caller-
+owned durable/atomic invalidation. Seven new regression methods cover both real
+verification profiles, change-and-return, fresh comparison, missing confirmation,
+malformed records and normal authorized subordinate-device changes. Full AUD09
+send-policy/notices/accessibility/queue/race-safe integration remains OPEN; see
+docs/AUD09_IMPLEMENTATION_STATUS.md. Do not mark parentAUD09 complete.
 
-### Reproduction and attributable CI fix
+### Verified reproduction and repair evidence
 
-Helper run38072576220/job114272870666 at initialheadac9742a verified both original
-source blob pins. Baseline reproduced exactly4 failing subcases with no errors.
-After the reviewed correction all7 new tests passed, but loading the old test module
-in the isolated broader selection failed with ModuleNotFoundError:
-canonical_serialization. The old module relied on an earlier suite import.
+Helper run38072676692/job114273166295 at21d419f succeeded. It verified the exact
+original engine/spec blobs, reproduced exactly4 failing subcases with no errors,
+then passed **all21 key-verification tests** after the correction. The earlier
+helper run38072576220 reproduced the same bug but hit an isolated import-path
+problem in the older test module;21d419f fixed the helper environment without
+changing tests or ordinary CI. This is an attributable setup repair, not a bypass.
 
-Commit21d419f sets the helper subprocess PYTHONPATH to the repository's scripts
-directory, for both baseline and repaired runs. It removes an unused helper import.
-No test, product behavior, ordinary validation workflow or gate was weakened.
-Non-force expected-head push fromac9742a succeeded. Fresh helper results pending.
+Generated and installed blobs:
+- engine bb07d15886822668708a722511155e73c69d4dbc
+- spec ebe47589981d0cf221cba2fd8fcdf7f392f167b2
+- development manifest280cf13725e22b664bba80b48809453034b2f149 (689files)
 
-### Required next transition
+The helper verified exactly the3 changed frozen-file paths and stored Git blobs
+only, never refs/PRs/tags/releases. Commit37a979d installs those tested blobs and
+**deletes .github/workflows/invalidation-repair-bootstrap.yml**. No temporary
+write-permission workflow remains in the final tree. Ordinary validation and
+archived candidate evidence are unchanged. Intermediate failing validation runs
+are historical and not merge approval; require fresh final-head full CI.
 
-Inspect the helper run at21d419f. It must reproduce the same4 failures, pass all
-key-verification tests after repair, verify the exact3 changed frozen-file paths,
-and emit ENGINE_BLOB, SPEC_BLOB, MANIFEST_BLOB. It only stores Git blobs, never refs,
-PRs/tags/releases. Then create a final tree froma5032711 with these blobs and delete
-`.github/workflows/invalidation-repair-bootstrap.yml` in the same commit. Use
-expected-head21d419f and retain ordinary validation. Review generated diff and
-fresh complete final-head CI before ready/merge. Do not merge the helper workflow.
+A direct public source-archive download was also unavailable. Continue using
+connected GitHub and actual CI; do not claim a full local clone or local full suite.
+Owner-wide AGENTS code search returned zero despite known branch guidance; treat
+that as search/index limitation, not proof that instructions do not exist. Inspect
+actual candidate trees and active work branches during the remaining audit.
 
 ## New material transitions
 
-23. 2026-10-10: Reproduced4 actual invalidation failures in GitHub's exact pinned
-    checkout; repaired new tests passed. Broader isolated run exposed an import-
-    setup problem, so no source/manifest blobs were accepted or merged.
-24. 2026-10-10: Corrected only helper test import setup in21d419f and pushed with
-    expected-head guard; fresh verification is pending.
+25. 2026-10-10: Verified helper38072676692:4 baseline failures,21 repaired tests pass,
+    exact source pins/changed paths and689-file development manifest.
+26. 2026-10-10: Installed exact tested blobs and removed temporary helper in37a979d;
+    non-force expected-head push succeeded. Final CI/review remains mandatory.
 
-## Resumption
+## Next actions
 
-Read this and immutable baseline06b6f310, then live GitHub. Finish PR63 safely,
-continue approved unblocked slices and the remaining repository audit in dependency
-order, and persist each material transition. Portfolio and Music release are NOT complete.
+Review PR63 generated engine/spec diff and deleted-helper state; inspect all full
+CI stages on37a979d; fix attributable failures without weakening gates. Check review
+requirements/mergeability and SHA-guard merge only after every gate passes. Then
+verify post-merge CI, continue full AUD09 and remaining candidate/dependency audits,
+and record transitions here. Portfolio and Music release are NOT complete.
