@@ -3,9 +3,14 @@
 import argparse
 import multiprocessing
 import sys
+import tempfile
+from pathlib import Path
 
+from platformdirs import user_data_dir
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QApplication, QLabel, QMainWindow
+from PySide6.QtWidgets import QApplication
+
+from music_analyzer.window import MainWindow
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -17,11 +22,16 @@ def main(argv: list[str] | None = None) -> int:
     app = QApplication(sys.argv[:1])
     app.setOrganizationName("Music Analyzer")
     app.setApplicationName("Music Analyzer")
-    window = QMainWindow()
-    window.setWindowTitle("Music Analyzer")
-    window.resize(1280, 820)
-    window.setCentralWidget(QLabel("Music Analyzer · local instrumental workspace"))
-    window.show()
-    if args.smoke:
-        QTimer.singleShot(150, app.quit)
-    return app.exec()
+    temporary = tempfile.TemporaryDirectory(prefix="music-analyzer-smoke-") if args.smoke else None
+    project = args.project or (str(Path(temporary.name) / "Smoke.ma-project") if temporary else
+                               str(Path(user_data_dir("MusicAnalyzer", "MusicAnalyzer")) / "Projects" / "Untitled.ma-project"))
+    try:
+        window = MainWindow(project)
+        window.show()
+        if args.smoke:
+            QTimer.singleShot(150, window.close)
+        result = app.exec()
+    finally:
+        if temporary:
+            temporary.cleanup()
+    return result
