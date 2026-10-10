@@ -25,7 +25,9 @@ as distinct tracks or skipped. Source hashes are checked again at export.
 SoundFile handles PCM containers and the codecs supplied by its bundled libsndfile.
 FFmpeg is a separately installed fallback for AAC/M4A and unsupported codecs.
 It is located explicitly or on PATH; it is not downloaded or silently bundled.
-No GPL FFmpeg binary is included. The distribution documents this optional codec
+No FFmpeg command-line binary is included. Qt Multimedia supplies its own dynamic
+FFmpeg playback libraries; their LGPL notices are documented in `THIRD_PARTY.md`.
+The distribution documents the optional command-line codec
 dependency and checks availability before starting a job. Decode to disk-backed
 float PCM; original channels feed loudness, with separately resampled mono views
 for acoustic and learned features. Process chunks rather than an entire album.
