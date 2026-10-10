@@ -1,0 +1,53 @@
+{
+  "model_id": "laion/larger_clap_music",
+  "revision": "a0b4534a14f58e20944452dff00a22a06ce629d1",
+  "license": "Apache-2.0",
+  "card_url": "https://huggingface.co/laion/larger_clap_music",
+  "assets": [
+    {
+      "name": "README.md",
+      "sha256": "6c2fc55edbba0f0f5d09388fdb6a2b5f324d8cc890fb1e43b271c1616fd84f61",
+      "size": 3457
+    },
+    {
+      "name": "config.json",
+      "sha256": "2d7722d338bb83ea8824272b1431f088954d3425d79eb3c2d39489478516dc03",
+      "size": 628
+    },
+    {
+      "name": "merges.txt",
+      "sha256": "1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5",
+      "size": 456318
+    },
+    {
+      "name": "preprocessor_config.json",
+      "sha256": "9739f58296aa6f9ac18008fd0150fb2649bc554985fbde86d0a4041c882ac753",
+      "size": 541
+    },
+    {
+      "name": "pytorch_model.bin",
+      "sha256": "5c289311f4a030d768af7ffbfdecd01b008aa64824211899a4e59f4f9d154fd1",
+      "size": 776444665
+    },
+    {
+      "name": "special_tokens_map.json",
+      "sha256": "06e405a36dfe4b9604f484f6a1e619af1a7f7d09e34a8555eb0b77b66318067f",
+      "size": 280
+    },
+    {
+      "name": "tokenizer.json",
+      "sha256": "dc239041d98de27ffc3975473a1a23e3db4c937b23c138c38bbc66588bd247e5",
+      "size": 2108774
+    },
+    {
+      "name": "tokenizer_config.json",
+      "sha256": "e2eb445cfdbf4711de620cbdf10478b0423950799e85652d9f28da47066ab86d",
+      "size": 1362
+    },
+    {
+      "name": "vocab.json",
+      "sha256": "ed19656ea1707df69134c4af35c8ceda2cc9860bf2c3495026153a133670ab5e",
+      "size": 798293
+    }
+  ]
+}
