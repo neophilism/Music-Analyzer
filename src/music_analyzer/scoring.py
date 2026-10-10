@@ -46,7 +46,7 @@ def validate_weights(weights):
         raise ValueError("Intensity weights must be nonnegative, finite, and have a positive total.")
 
 
-def make_snapshot(tracks: list[Track], profile="perceived", weights=None, reference_ids=None) -> dict:
+def make_snapshot(tracks: list[Track], profile="perceived", weights=None, reference_ids=None, valence_calibration=None) -> dict:
     if profile not in {"simple", "perceived"}:
         raise ValueError("Unknown intensity profile.")
     weights = weights or DEFAULT_WEIGHTS.copy()
@@ -66,7 +66,7 @@ def make_snapshot(tracks: list[Track], profile="perceived", weights=None, refere
         ranges[key] = {"lower": float(lower), "upper": float(upper), "source": source}
     snapshot = {"id": uuid.uuid4().hex, "created": time.time(), "fingerprint": fingerprint(tracks),
                 "members": [t.id for t in eligible], "ranges": ranges, "profile": profile,
-                "weights": weights, "reference": None}
+                "weights": weights, "reference": None, "valence_calibration": valence_calibration}
     if reference_ids:
         by_id = {t.id: t for t in eligible}
         try:
@@ -91,8 +91,12 @@ def fixed_dynamics(track):
 
 
 def score_tracks(tracks: list[Track], snapshot: dict) -> dict[str, dict]:
+    from music_analyzer.calibration import calibrated_valence
+
     result = {}
-    valences = [t.value("valence") for t in tracks if not t.excluded and finite(t.value("valence"))]
+    def positivity(track):
+        return track.value("valence") if "valence" in track.overrides else calibrated_valence(track.value("valence"), snapshot.get("valence_calibration"))
+    valences = [positivity(t) for t in tracks if not t.excluded and finite(positivity(t))]
     for track in tracks:
         components = {}
         for key, bounds in snapshot["ranges"].items():
@@ -114,7 +118,7 @@ def score_tracks(tracks: list[Track], snapshot: dict) -> dict[str, dict]:
             reference_dynamics = float(np.clip(5 + 90 * (base - reference["low"]) / (reference["high"] - reference["low"]), 0, 100)) if finite(base) else None
             dynamics = reference_dynamics
         tempo = components["bpm"]
-        valence = track.value("valence")
+        valence = positivity(track)
         valence = float(np.clip(valence, 0, 100)) if finite(valence) else None
         rank = None
         if valence is not None and valences:
@@ -131,7 +135,8 @@ def score_tracks(tracks: list[Track], snapshot: dict) -> dict[str, dict]:
         needs_review = not track.reviewed and (track.analysis.get("needs_review", True) or valence is None or intensity is None)
         result[track.id] = {"dynamics": dynamics, "corpus_dynamics": corpus_dynamics,
                             "reference_dynamics": reference_dynamics, "tempo": tempo, "valence": valence,
-                            "valence_corpus_rank": rank, "intensity": intensity, "simple_intensity": simple,
+                            "valence_corpus_rank": rank, "raw_semantic_valence": track.analysis.get("valence"),
+                            "intensity": intensity, "simple_intensity": simple,
                             "perceived_intensity": perceived, "rhythmic_drive": drive, "density": components["density_raw"],
                             "bucket": bucket, "needs_review": needs_review,
                             "coverage": simple_coverage if snapshot["profile"] == "simple" else perceived_coverage,

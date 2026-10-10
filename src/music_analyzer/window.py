@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from music_analyzer.calibration import fit_intensity_pairs, fit_valence_anchors
 from music_analyzer.domain import AnalysisSettings
 from music_analyzer.emotion import MOODS
 from music_analyzer.jobs import BatchRunner
@@ -381,7 +382,7 @@ class MainWindow(QMainWindow):
         self.tempo_plot.set_points([(r["time"], r["bpm"]) for r in track.analysis.get("tempo_curve", [])])
         self.emotion_plot.set_points([(r["time"], r["valence"]) for r in track.analysis.get("emotion_curve", [])])
         self.bpm_edit.setValue(track.value("bpm") or 0)
-        self.valence_edit.setValue(track.value("valence") if finite(track.value("valence")) else -1)
+        self.valence_edit.setValue(score.get("valence") if finite(score.get("valence")) else -1)
         self.arousal_edit.setValue(track.value("arousal") if finite(track.value("arousal")) else -1)
         for editor, key in ((self.mode_edit, "mode"), (self.bucket_edit, "bucket"), (self.mood_edit, "mood")):
             value = track.overrides.get(key, "Automatic")
@@ -518,7 +519,8 @@ class MainWindow(QMainWindow):
             profile = "simple" if self.profile.currentIndex() else "perceived"
             self.snapshot = make_snapshot(self.project.tracks(), profile=profile,
                                           weights=self.project.metadata("intensity_weights"),
-                                          reference_ids=self.project.metadata("reference_ids"))
+                                          reference_ids=self.project.metadata("reference_ids"),
+                                          valence_calibration=self.project.metadata("valence_calibration"))
             self.project.set_metadata("snapshot", self.snapshot)
             self.refresh()
         except ValueError as exc:
@@ -722,7 +724,128 @@ class MainWindow(QMainWindow):
             self.project.set_metadata("analysis_settings", self.options.to_dict())
 
     def reference_dialog(self):
-        QMessageBox.information(self, "Reference calibration", "Reference anchors and personal weights are added in the calibration stage.")
+        if self.busy:
+            return
+        dialog = QDialog(self)
+        dialog.setWindowTitle("References & personal intensity")
+        dialog.resize(600, 650)
+        layout = QVBoxLayout(dialog)
+        text = QLabel("Choose your actual quiet and dense recordings to establish dynamics anchors at 5 and 95.\nThe corpus scale remains available separately. Weights affect intensity; positivity stays independent.")
+        text.setWordWrap(True)
+        layout.addWidget(text)
+        form = QFormLayout()
+        quiet, dense = QComboBox(), QComboBox()
+        quiet.addItem("Use corpus dynamics", None)
+        dense.addItem("Choose dense reference", None)
+        for track in self.tracks:
+            if track.status == "complete" and not track.excluded:
+                quiet.addItem(track.original_name, track.id)
+                dense.addItem(track.original_name, track.id)
+        references = self.project.metadata("reference_ids")
+        if references:
+            quiet.setCurrentIndex(max(0, quiet.findData(references[0])))
+            dense.setCurrentIndex(max(0, dense.findData(references[1])))
+        form.addRow("Quiet dynamics reference", quiet)
+        form.addRow("Dense dynamics reference", dense)
+        from music_analyzer.scoring import DEFAULT_WEIGHTS
+        current = self.project.metadata("intensity_weights", DEFAULT_WEIGHTS)
+        weight_editors = {}
+        for key in DEFAULT_WEIGHTS:
+            editor = QDoubleSpinBox()
+            editor.setRange(0, 100)
+            editor.setValue(current[key] / sum(current.values()) * 100)
+            weight_editors[key] = editor
+            form.addRow(key.replace("_", " ").title() + " weight", editor)
+        layout.addLayout(form)
+        positivity_controls = QHBoxLayout()
+        def learn_positivity():
+            try:
+                calibration = fit_valence_anchors(self.tracks)
+                self.project.set_metadata("valence_calibration", calibration)
+                self.recalculate()
+                self.statusBar().showMessage("Personal positivity mapping learned from reviewed corrections", 10000)
+            except ValueError as exc:
+                self._show_error(str(exc))
+        def reset_positivity():
+            self.project.set_metadata("valence_calibration", None)
+            self.recalculate()
+        positivity_controls.addWidget(button("Learn positivity from corrections", learn_positivity))
+        positivity_controls.addWidget(button("Reset positivity mapping", reset_positivity))
+        layout.addLayout(positivity_controls)
+        pairs = self.project.metadata("intensity_pairs", [])
+        pair_form = QFormLayout()
+        higher, lower = QComboBox(), QComboBox()
+        for track in self.tracks:
+            if not track.excluded and track.id in self.scores:
+                higher.addItem(track.original_name, track.id)
+                lower.addItem(track.original_name, track.id)
+        if lower.count() > 1:
+            lower.setCurrentIndex(1)
+        pair_form.addRow("A feels more intense", higher)
+        pair_form.addRow("than B", lower)
+        layout.addLayout(pair_form)
+        pair_note = QLabel(f"{len(pairs)} recorded intensity comparisons")
+        layout.addWidget(pair_note)
+        pair_controls = QHBoxLayout()
+        def add_pair():
+            if higher.currentData() and lower.currentData() and higher.currentData() != lower.currentData():
+                pairs.append({"higher": higher.currentData(), "lower": lower.currentData()})
+                self.project.set_metadata("intensity_pairs", pairs)
+                pair_note.setText(f"{len(pairs)} recorded intensity comparisons")
+        def fit_pairs():
+            try:
+                fitted = fit_intensity_pairs(self.scores, pairs)
+                for key, value in fitted["weights"].items():
+                    weight_editors[key].setValue(value * 100)
+                pair_note.setText(f"{fitted['pairs_used']} fitting pairs · agreement {fitted['training_pair_agreement']:.0%} (personal fit, not held-out accuracy)")
+            except ValueError as exc:
+                self._show_error(str(exc))
+        pair_controls.addWidget(button("Add A > B comparison", add_pair))
+        pair_controls.addWidget(button("Fit weights from comparisons", fit_pairs))
+        layout.addLayout(pair_controls)
+        preset_name = QLineEdit()
+        preset_name.setPlaceholderText("Personal preset name")
+        layout.addWidget(preset_name)
+        preset_controls = QHBoxLayout()
+        def preset():
+            return {"weights": {key: editor.value() / 100 for key, editor in weight_editors.items()},
+                    "valence_calibration": self.project.metadata("valence_calibration"), "name": preset_name.text().strip() or "Personal"}
+        def save_preset():
+            path, _ = QFileDialog.getSaveFileName(dialog, "Save personal preset", "music-intensity-preset.json", "JSON (*.json)")
+            if path:
+                Path(path).write_text(json.dumps(preset(), indent=2), encoding="utf-8")
+        def load_preset():
+            from music_analyzer.scoring import validate_weights
+            path, _ = QFileDialog.getOpenFileName(dialog, "Load personal preset", "", "JSON (*.json)")
+            if not path:
+                return
+            try:
+                loaded = json.loads(Path(path).read_text(encoding="utf-8"))
+                validate_weights(loaded["weights"])
+                for key, value in loaded["weights"].items():
+                    weight_editors[key].setValue(value / sum(loaded["weights"].values()) * 100)
+                self.project.set_metadata("valence_calibration", loaded.get("valence_calibration"))
+                preset_name.setText(loaded.get("name", "Personal"))
+            except (OSError, ValueError, KeyError, TypeError) as exc:
+                self._show_error(str(exc))
+        preset_controls.addWidget(button("Save preset…", save_preset))
+        preset_controls.addWidget(button("Load preset…", load_preset))
+        layout.addLayout(preset_controls)
+        controls = QDialogButtonBox(QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel)
+        controls.accepted.connect(dialog.accept)
+        controls.rejected.connect(dialog.reject)
+        layout.addWidget(controls)
+        if dialog.exec():
+            references = [quiet.currentData(), dense.currentData()] if quiet.currentData() else None
+            try:
+                values = preset()
+                make_snapshot(self.tracks, weights=values["weights"], reference_ids=references)
+                self.project.set_metadata("reference_ids", references)
+                self.project.set_metadata("intensity_weights", values["weights"])
+                self.project.set_metadata("preset_name", values["name"])
+                self.recalculate()
+            except ValueError as exc:
+                self._show_error(str(exc))
 
     def relocate_file(self):
         track = self.selected_track()
