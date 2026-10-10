@@ -1,171 +1,164 @@
 # Repository development progress
 
-Last reconciled: 2026-10-10. Portfolio status: INCOMPLETE.
-Current user priority: make Music Analyzer available to use, not more unrelated
-portfolio work before the application handoff.
+Last reconciled: 2026-10-10, after Music Analyzer delivery PR17 merged.
+Portfolio status: INCOMPLETE. Music Analyzer program access: handed off as an
+installable review build. The user's own installation/first run is not confirmed.
 
-## Canonical checkpoint and preserved history
+## Canonical checkpoint and immutable history
 
-Read this file on PRIVATE neophilism/Music-Analyzer, branch
-agent/repo-development-progress, before every execution. Product/main copies may
-be stale. This operational branch is not a bypass around product PR checks.
+Read this PRIVATE repository/branch/file before every execution:
+neophilism/Music-Analyzer / agent/repo-development-progress /
+repo-development-progress.md. Product/main ledger copies may be historical.
+The operational branch is not a product-merge bypass.
 
-The complete preceding checkpoint, including original inventory, scope, all
-three merged milestones, detailed CI evidence, dependency edges, and transitions
-1-29, is preserved at:
+Full preserved scope, inventory, dependencies, historical evidence and transitions:
 https://github.com/neophilism/Music-Analyzer/blob/0d21cc1eb9b465d21633fa0991500261a97b0d73/repo-development-progress.md
 
-Read that immutable history for full details; the current priority and latest
-transitions below supersede its pending-next-action section only. Nothing in this
-checkpoint claims that unseen original history was recovered. The originally
-requested ledger was not found; this is a transparent reconstruction. Reconcile
-and preserve any original later discovered.
+This execution's detailed initial handoff checkpoint and transitions 30-32:
+https://github.com/neophilism/Music-Analyzer/blob/7aa33954400e7eb64a4fbba4316b07252cdf6ffc/repo-development-progress.md
 
-Hourly continuation task 6aca70fe26a8819188e722106e884404 reads this canonical branch.
-A schedule is not evidence that a future run executed or completed development.
+Read these immutable predecessors before resuming portfolio work; their pending
+instructions are superseded by the current state below, not erased. The originally
+requested ledger was not found; this is a transparent reconstruction. Preserve
+and reconcile an original if later discovered.
 
-## Current user-facing Music Analyzer delivery
+Hourly continuation 6aca70fe26a8819188e722106e884404 remains enabled. Its prompt was
+updated to prioritize actual Music Analyzer use and to re-read this live ledger
+rather than assuming PR17 is still open. A schedule is not proof of execution.
 
-The user said: "ok then do that so I can finally use the program". Focus the
-current execution on handing off the existing verified native app and removing
-installation confusion. Music Analyzer has no dependency on completion of the
-website security standard or the other portfolio projects.
+## Music Analyzer: available application
 
-Live main remains 50b0c3cb11d8934c3123932e3bb458c86518c0a4. Its successful
-post-merge Tests run 38070930610 has all four jobs successful: Linux core,
-macOS core, mac-package, and mac-clean-install. Artifact 11676882107 named
-macos-arm64-review exists, is unexpired, and contains the application.
+The user's latest request was to finally use the program. This native desktop
+application does not require completion of website-security or other repositories.
+The existing verified application download was sent to the user:
 
-Direct user download:
 https://github.com/neophilism/Music-Analyzer/actions/runs/38070930610/artifacts/11676882107
-Fallback build page:
-https://github.com/neophilism/Music-Analyzer/actions/runs/38070930610
 
-Artifact size: 237717221 bytes. Expires 2026-11-09T17:19:52Z.
-Outer artifact SHA-256:
+Fallback: https://github.com/neophilism/Music-Analyzer/actions/runs/38070930610
+Select macos-arm64-review under Artifacts; reports alone are not the application.
+GitHub sign-in with repository access is required.
+
+Binary source: 50b0c3cb11d8934c3123932e3bb458c86518c0a4 (merged PR16).
+Run 38070930610: all four jobs successful, independently rechecked this session.
+Artifact 11676882107: 237717221 bytes, unexpired when checked, expiration
+2026-11-09T17:19:52Z. Outer artifact ZIP SHA-256:
 0189a3cf0ce1fb6ba5724b29fb0cbc61dafaf31ceeb3578cba03997e8b5505e9
-The inner application ZIP has its own SHA256SUMS; do not conflate the two hashes.
+The clean-install log independently confirmed that digest after downloading.
+The INNER Music-Analyzer-macos-arm64-unsigned-review.zip has its own SHA256SUMS.
+Never compare the inner ZIP with the outer digest.
 
-Target: Apple Silicon, macOS 14+. The app bundles Python. Model weights are a
-separate explicit approximately 780 MB in-app installation. It is ad-hoc signed,
-not Developer ID signed or notarized. Do not disable global Gatekeeper or bypass
-malware/damaged-app warnings. Apple's documented per-app Open Anyway process is
-available only when the user has verified and trusts the intended app; managed
-Macs may prohibit this. No user-device installation or playback is claimed.
+The separate macOS15 clean-install log verified the frozen Python3.12.10 app,
+native GUI, spawned worker, offline model, project reopen, album ordering,
+byte-verified audio export and relative playlist. These were two synthetic tracks,
+not a full real-music listening or performance validation.
 
-### Active documentation follow-up PR17
+Target: Apple Silicon, macOS14+. Python is bundled. Unzip both archive layers,
+move Music Analyzer.app to Applications, then explicitly install the approximately
+780MB local model through Local model... > Install / verify model. Begin with
+WAV/FLAC copies and Export Copies. AAC/M4A may require separate FFmpeg. Audio
+stays local. The app is ad-hoc signed, NOT Developer ID signed or notarized.
+Use only Apple's documented per-app opening process after verifying/trusting the
+intended download. Never globally disable Gatekeeper or bypass a damaged/malware
+warning. No app binary was fetched or executed locally in this session; delivery
+is via the verified authenticated GitHub download. No user-device install is claimed.
 
-PR URL: https://github.com/neophilism/Music-Analyzer/pull/17
+## PR17: delivery documentation MERGED
+
+This is a documentation follow-up, not activation of roadmap training stage17.
+README now leads with the tested download, removes obsolete plan-only/old-branch
+instructions, and links the complete first-run guide. The guide covers nested
+ZIP extraction, Mac opening, explicit model installation, review, first album
+copy export, codec troubleshooting, checksum distinctions and remaining limits.
+No app code, tests, dependencies, workflows or security settings were changed.
+No new local full-suite execution was claimed; actual GitHub CI was used.
+
+PR: https://github.com/neophilism/Music-Analyzer/pull/17
 Branch: agent/music-analyzer-first-run-2026-10-10
-Head: 9f3ebacb20206075cacf6ffce0592b69fe1c63a3
-Tree: 91722c2e3ff566e4eb9041950c2d081afd974c53
-Base at creation: 50b0c3cb11d8934c3123932e3bb458c86518c0a4
-State: draft, fresh full CI required before merge.
+Tested head: 9f3ebacb20206075cacf6ffce0592b69fe1c63a3
+Tested tree: 91722c2e3ff566e4eb9041950c2d081afd974c53
+Full pre-merge run: 38073762128. All four current-head checks passed:
+core (ubuntu-latest), core (macos-15), mac-package, mac-clean-install.
+The last check completed 2026-10-10T18:03:28Z. This includes both fixture
+benchmarks, actual-model tests, frozen verification and independent clean install.
 
-README was still claiming main was plan-only and directing developers to the
-old implementation branch. This two-file docs-only change puts the exact
-verified app download first, corrects checkout to main, and adds
-GETTING_STARTED.md covering two-layer ZIP extraction, Applications installation,
-model setup, a first small copy-export album, and troubleshooting. Actual GUI
-labels/handlers, GitHub artifact metadata/jobs, and Apple/GitHub guidance were
-read before writing it. No application code, tests, dependencies, workflows, or
-security settings changed. No new local full-suite run is claimed. Existing
-full current-head CI is mandatory; historical app CI does not replace PR CI.
+Reviewed the exact two-file diff, empty reviews/requested reviewers/legacy
+statuses, unchanged main base, and clean mergeability. Main reports no protected
+required contexts; rulesets are unavailable on the current private-repository plan.
+All four application checks were nevertheless required. Added final evidence to
+PR comment6100565630, marked ready, then used the expected-head merge guard.
 
-This GitHub PR number 17 is a DELIVERY FOLLOW-UP, not activation of roadmap
-conditional training stage 17. Conditional model stages 17/18 remain unactivated.
-The current session owns this follow-up while actively executing; another worker
-must re-read live metadata and avoid duplicating or overwriting it.
+Merge: 4f702bd4eb1a973dc77c6680557b4621dcc544f1 at 2026-10-10T18:04:11Z.
+Confirmed PR17 closed/merged and docs/GETTING_STARTED.md available on main.
+Merge tree equals tested tree91722c2e3ff566e4eb9041950c2d081afd974c53.
 
-## Retained scope and safe execution contract
+POST-MERGE: push run38074292507 was observed IN PROGRESS at that exact merge SHA.
+It is not yet claimed successful. Check its result next and repair attributable
+failures without invalidating the separately verified existing app download.
 
-Owner neophilism. Rediscover and paginate the rolling two-calendar-month set,
-intersect with projects started on or after 2026-10-01, and inspect actual
-creation/history/plans before modifying an unaudited candidate. Recent activity
-never makes an older project eligible. Initial two search windows returned 31
-nonarchived repositories, leaving 27 candidates after the four present exclusions.
+Current user guide:
+https://github.com/neophilism/Music-Analyzer/blob/main/docs/GETTING_STARTED.md
 
-Never modify Garden/The-Garden, NFT-Minting-Console, Cornerstone/The-Cornerstone,
-Galinsky 2028/Galinsky-2028, FOIA Bias Analysis, or Send FOIA Log Requests,
+## Retained scope and operating rules
+
+Owner neophilism. Rediscover/paginate the rolling two-calendar-month repository
+set and intersect with projects started on or after2026-10-01. Verify actual
+creation/history/plans before changing unaudited candidates. Recent activity does
+not make an older project eligible. The prior inventory had31 nonarchived results
+and27 candidates after present exclusions; the complete list is in preserved history.
+
+NEVER modify Garden/The-Garden, NFT-Minting-Console, Cornerstone/The-Cornerstone,
+Galinsky2028/Galinsky-2028, FOIA Bias Analysis, or Send FOIA Log Requests,
 including normalized equivalent slugs. The first four are concurrently developed
-elsewhere. Keep private portfolio inventory private.
+elsewhere. Keep private portfolio information private.
 
-Read actual applicable AGENTS.md and complete approved plans; inspect branches,
-open PRs, current heads/checks, dependency edges, and active work/lease signals.
-Owner-wide AGENTS search returned zero despite known branch instructions, so
-search-index absence is not proof of absent guidance. Preserve the native desktop
-architecture and local-only audio processing.
+Read applicable actual AGENTS.md, complete approved plans, current branches/PRs,
+checks, dependency edges and active-worker signals. Code-search absence is not
+proof of absent instructions. Reuse existing PRs and do not overwrite other workers.
+Use the highest-priority unblocked coherent item with tests/docs. Require every
+applicable current-head check/review/security gate and clean mergeability before
+SHA-guarded merge commits. Use non-force expected-head/ref writes. Never weaken
+tests, invent evidence, self-approve required independent review or publish a
+release without separate authorization. Persist material transitions here.
 
-Take the highest-priority unblocked coherent change with tests/docs and reuse
-existing work. Require every applicable check/review/security gate on the actual
-head and clean mergeability. Use non-force expected-head/ref updates and
-SHA-guarded merge commits. Never disable tests, fabricate evidence, self-approve
-independent review, overwrite concurrent work, or publish a release without
-separate authorization. Update this ledger after material transitions. Do not
-conflate source merge, an unsigned package, and full release completion.
+Music PR16 and security PR62/AUD08 and PR63/AUD09.1 are already merged with full
+pre/post-merge evidence in immutable history. Do not duplicate them or recreate
+removed temporary helpers. Source merges are not completed public releases.
 
-## Completed milestones retained (do not duplicate)
+## Still incomplete
 
-Music Analyzer PR01-15 predated the initial execution. PR16 corrected the manual
-signing Python pin to package-validated 3.12.10, added three regression checks,
-and delivered Mac packaging. Head f91860fb960b374271b1772e1a52faa7f9030f25
-passed pre-merge 38070372930. SHA-guarded merge 50b0c3cb11d8934c3123932e3bb458c86518c0a4
-passed post-merge 38070930610, all four jobs in each. Signing itself did not run.
+Music release gates remain: held-out instrumental labels/intensity comparisons,
+actual owner anchors, full-length100-200-track aggregate memory/runtime on a16GB
+Mac, manual playback/appearance/accessibility, linked-library replacement audit,
+and actual Apple signing/notarization/Gatekeeper. No owner's first-run success
+is assumed. Conditional model training requires inadequate-baseline evidence and
+cleared labels; docs PR17 does not activate that contingency.
 
-Security-standard PR62/AUD08 repaired malformed-enum crashes and bound authorizer
-proofs to the resulting state hash. 17 focused tests passed. Final head
-71ebd65e5f76f15deb8f571d47541deb8397b71f passed 38071966254; merge
-30a2a91e2369d5703823b6721d5460b171c3b540 passed post-merge 38072242615.
+Security fullAUD09 remains incomplete; consult its status/remediation documents
+for send policies, notices, ordered history, accessibility, persistence races,
+and queued content. PR49/50 require genuine independent review/publication evidence.
+The remaining25 candidate start-history/AGENTS/plan/dependency audits and full
+prioritized portfolio queue remain incomplete. Preserve the dependency edges in
+prior history and continue independent unblocked work around external blockers.
 
-Security-standard PR63/AUD09.1 prevented invalidated verification records from
-silently regaining trust and specified durable caller persistence. Seven new
-regression methods, 21 focused tests passed. Final head
-37a979dcb9ab4104564d1400631b7281014a4bb0 passed full CI 38072779336; merge
-ddfbd40c47d13890ebb81ea91c81fe329417058e passed post-merge 38072905483.
-Full evidence and test-reproduction details remain in immutable prior history.
-Temporary helper workflows were removed before final full CI/merge and must not
-be recreated merely to repeat completed work.
+## Latest transitions
 
-## Incomplete work and release limits retained
+33. 2026-10-10: Read the previous actual macOS15 clean-install log and confirmed
+    the distributed artifact digest plus offline analysis/reopen/export evidence.
+    Updated hourly continuation to respect immediate Music Analyzer usability.
+34. 2026-10-10: Verified all four PR17 checks on exact head9f3ebac in38073762128;
+    reviewed the two-file diff, live base, reviews, statuses and policy metadata.
+    Added evidence, marked ready and SHA-guarded merged as4f702bd.
+35. 2026-10-10: Confirmed merged PR and guide on main. Observed new post-merge
+    run38074292507 in progress; no post-merge success claim. The user-facing
+    existing application download remains independently verified and available.
 
-Music: held-out instrumental labels/intensity pairs, owner anchor recordings,
-full-length 100-200-track runtime and aggregate memory on a 16 GB Mac, manual
-playback/appearance/accessibility, linked-library replacement audit, and actual
-Apple signing/notarization/Gatekeeper remain unverified. A review build can be
-handed to the user without falsely marking these gates complete. Conditional
-training requires inadequate-baseline evidence and cleared labels.
+## Next execution
 
-Security: full AUD09 is incomplete. Remaining send policies, change notices,
-ordered history, accessible presentation, race-safe persistence and queued-message
-handling are in AUD09_IMPLEMENTATION_STATUS and the remediation plan. PR49/50
-require genuine independent review/publication evidence; CI is not that evidence.
-Mechanisms remain development-only, not production-approved.
-
-25 remaining candidates still need complete start-history/AGENTS/approved-plan/
-dependency audit. Their complete list and partial cross-repository graph remain
-in the preceding immutable checkpoint. Discovery is not eligibility certification.
-Continue unblocked unrelated work only after this immediate user-facing handoff;
-external release gates must not permanently stall independent tasks.
-
-## Latest material transitions
-
-30. 2026-10-10: User prioritizes actually using Music Analyzer. Re-read canonical
-    progress, AGENTS, main, GUI entrypoint/model/preferences handlers, README and
-    Mac handoff. Confirmed main still at the tested PR16 merge, no open PRs,
-    all four post-merge jobs successful, and application artifact unexpired.
-31. 2026-10-10: Sent the direct existing app download to the user. Read Apple
-    per-app opening guidance and GitHub private-artifact access requirements.
-    Identified stale README plan-only/old-branch instructions.
-32. 2026-10-10: Created docs-only head 9f3ebac and draft PR17 with a first-run
-    guide and corrected README. Fresh CI is pending. No executable, dependency,
-    workflow, security gate, excluded repository, or public release was changed.
-
-## Next action
-
-Inspect PR17 current-head CI and review requirements, confirm the two-file diff,
-and merge only after all four required workflow jobs and all other applicable
-gates pass using an expected-head SHA. Record the merge and post-merge status.
-Give the user the direct tested application download and brief first-run steps;
-do not substitute a portfolio status report for the actual program handoff.
-Do not claim the app was installed on the user's computer. After handoff, resume
-eligible unblocked plan work with the retained exclusions and dependency rules.
+Re-read this file and live GitHub. Check PR17 post-merge38074292507; do not repeat
+its merged documentation work. Respond to actual user installation/setup issues
+as Music Analyzer's immediate priority rather than substituting unrelated audits.
+Do not assume the app is installed on the user's Mac. Retain honest release limits.
+After the application handoff, resume the outstanding eligible dependency/plan
+audit and highest-priority unblocked approved items under the exclusions above.
+Disable continuation only after all eligible approved plan items and planned PRs
+are verified complete; until then retain truthful partial/blocked states.
