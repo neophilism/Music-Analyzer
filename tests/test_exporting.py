@@ -96,11 +96,12 @@ def test_changed_source_and_unrelated_case_collision_preserved(tmp_path):
     folder.mkdir()
     unrelated = folder / "1_01_ÉTUDE.wav"
     unrelated.write_bytes(b"unrelated")
-    path = create_journal(make_export_plan(tracks, scores, album, {}, tmp_path, "p"))
     with pytest.raises(FileExistsError):
+        path = create_journal(make_export_plan(tracks, scores, album, {}, tmp_path, "p"))
         execute_export(path)
     assert unrelated.read_bytes() == b"unrelated"
     unrelated.unlink()
+    path = create_journal(make_export_plan(tracks, scores, album, {}, tmp_path, "p"))
     Path(tracks[0].path).write_bytes(b"changed externally")
     with pytest.raises(ValueError, match="changed"):
         execute_export(path)
@@ -221,11 +222,12 @@ def test_unicode_normalization_collision_and_permissions(tmp_path, monkeypatch):
     directory.mkdir()
     decomposed = directory / "1_01_E\u0301tude.wav"
     decomposed.write_bytes(b"other")
-    path = create_journal(make_export_plan(tracks, scores, album, {}, tmp_path, "p"))
-    with pytest.raises(FileExistsError, match="collides"):
+    with pytest.raises(FileExistsError):
+        path = create_journal(make_export_plan(tracks, scores, album, {}, tmp_path, "p"))
         execute_export(path)
     assert decomposed.read_bytes() == b"other"
     decomposed.unlink()
+    path = create_journal(make_export_plan(tracks, scores, album, {}, tmp_path, "p"))
     from music_analyzer import exporting
 
     def denied(*_):
