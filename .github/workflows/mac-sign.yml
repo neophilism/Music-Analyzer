@@ -22,7 +22,7 @@ jobs:
           ref: ${{ inputs.source_sha }}
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12.15'
+          python-version: '3.12.10'
       - run: python -m pip install -e '.[dev,models]'
       - name: Check reviewed source
         env:
