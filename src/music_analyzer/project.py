@@ -82,6 +82,10 @@ class Project:
     def tracks(self) -> list[Track]:
         return [Track(**json.loads(row[0])) for row in self.connection.execute("SELECT data FROM tracks ORDER BY rowid")]
 
+    def track(self, track_id: str) -> Track | None:
+        row = self.connection.execute("SELECT data FROM tracks WHERE id=?", (track_id,)).fetchone()
+        return Track(**json.loads(row[0])) if row else None
+
     def save_track(self, track: Track):
         with self.connection:
             self.connection.execute(

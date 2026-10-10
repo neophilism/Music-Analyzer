@@ -1,0 +1,40 @@
+{
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "python": "3.12.14",
+  "purpose": "Synthetic mechanics/performance; no emotion or genre accuracy claim",
+  "tracks": 200,
+  "formats": {
+    ".wav": 50,
+    ".flac": 50,
+    ".aif": 50,
+    ".ogg": 50
+  },
+  "fixture_seconds": 12.5,
+  "models_enabled": false,
+  "workers": 1,
+  "peak_active_workers": 1,
+  "import_seconds": 0.3040704899995035,
+  "analysis_with_cancel_and_restart_seconds": 18.946566889999303,
+  "completed_before_restart": 5,
+  "final_statuses": {
+    "complete": 200
+  },
+  "resume_event_counts": {
+    "progress": 195,
+    "complete": 195
+  },
+  "cache_event_counts": {
+    "cached": 200
+  },
+  "cached_batch_seconds": 0.9698437090009975,
+  "cached_scoring_and_order_seconds": 0.046727377999559394,
+  "max_poll_seconds": 0.2118754639996041,
+  "export_seconds": 3.2769101560006675,
+  "exported_tracks": 200,
+  "journal_bytes": 111748,
+  "peak_parent_rss_mib": 489.5,
+  "peak_child_rss_mib": 489.5,
+  "memory_note": "Maximum individual child RSS, not simultaneous aggregate worker memory",
+  "model_identity": "a0b4534a14f58e20944452dff00a22a06ce629d1:genres-moods-1",
+  "heldout_quality": "unverified"
+}
