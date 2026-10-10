@@ -11,6 +11,7 @@ from music_analyzer.audio import decoded_audio, file_hash, iter_audio_chunks
 from music_analyzer.domain import AnalysisSettings
 from music_analyzer.loudness import LoudnessMeter
 from music_analyzer.rhythm import mono_resample, summarize_tempo, tempo_windows
+from music_analyzer.tonality import analyze_tonal_segment, summarize_tonality
 
 
 class AnalysisCancelled(Exception):
@@ -34,7 +35,7 @@ def analyze_track(track: dict, settings: dict, model_directory: str, cancel, pro
     if file_hash(source) != track["sha256"]:
         raise ValueError("Source content changed since import. Remove and reimport this recording.")
     waveform = []
-    tempos, acoustic_features = [], []
+    tempos, acoustic_features, tonal_segments = [], [], []
     previous = np.zeros(0, dtype=np.float32)
     with decoded_audio(source, options.ffmpeg_path) as audio:
         meter = LoudnessMeter(audio.samplerate, audio.channels)
@@ -48,6 +49,9 @@ def analyze_track(track: dict, settings: dict, model_directory: str, cancel, pro
                                             options.acoustic_rate)
             tempos.extend(local)
             acoustic_features.append(features)
+            tonal = analyze_tonal_segment(mono, start, options.acoustic_rate)
+            if tonal:
+                tonal_segments.append(tonal)
             previous = mono[-round(options.overlap_seconds * options.acoustic_rate):]
             # At most 2000 envelope bins, irrespective of recording duration.
             bin_size = max(1, int(audio.frames / 2000))
@@ -59,6 +63,6 @@ def analyze_track(track: dict, settings: dict, model_directory: str, cancel, pro
         raise ValueError("Source changed while it was being analyzed; the result was discarded.")
     features = {key: float(np.mean(values)) if (values := [row[key] for row in acoustic_features if row[key] is not None]) else None
                 for key in ("onset_rate", "density_raw")}
-    return {**meter.finish(), **summarize_tempo(tempos), **features,
+    return {**meter.finish(), **summarize_tempo(tempos), **summarize_tonality(tonal_segments), **features,
             "duration": track["duration"], "waveform": waveform,
             "analysis_version": ANALYSIS_VERSION, "warnings": []}
