@@ -1,0 +1,93 @@
+{
+  "repository": "neophilism/Music-Analyzer",
+  "title": "Music Analyzer",
+  "version": 1,
+  "planVerified": true,
+  "plannedPrCount": 16,
+  "sourceFiles": [
+    "docs/DEVELOPMENT_PLAN.md"
+  ],
+  "scopeNote": "PR 17 and PR 18 are optional model-training contingencies, not part of the user-approved 16-PR first-release plan; no extra scope presumed.",
+  "milestones": [
+    {
+      "id": "MVA-01",
+      "title": "Validate models and record architecture",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-02",
+      "title": "Create the native application foundation",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-03",
+      "title": "Import tracks and save projects",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-04",
+      "title": "Run resumable analysis jobs",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-05",
+      "title": "Measure loudness and dynamic variation",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-06",
+      "title": "Measure tempo and tempo variation",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-07",
+      "title": "Estimate key and major or minor mode",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-08",
+      "title": "Add local models and genre candidates",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-09",
+      "title": "Estimate emotion from instrumental audio",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-10",
+      "title": "Create normalized comparison scales",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-11",
+      "title": "Generate two groups and an album order",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-12",
+      "title": "Complete the analysis and ordering interface",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-13",
+      "title": "Add anchors and personalized presets",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-14",
+      "title": "Export numbered folders with recovery",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-15",
+      "title": "Validate audio quality and batch performance",
+      "origin": "original"
+    },
+    {
+      "id": "MVA-16",
+      "title": "Package and document the macOS release",
+      "origin": "original"
+    }
+  ]
+}
