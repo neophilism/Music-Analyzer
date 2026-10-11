@@ -1,3 +1,5 @@
+> **Canonical PR work plan:** [`registry/roadmap.json`](../registry/roadmap.json). The 16 approved first-release PRs are tracked there. Optional PRs 17–18 remain conditional; the detailed plan below is preserved.
+
 <!-- Complete text of the user-approved plan. The original DOCX is archived beside this file. -->
 
 # Music Analyzer Development Plan
