@@ -1,0 +1,410 @@
+{
+  "schemaVersion": 1,
+  "repository": "neophilism/Music-Analyzer",
+  "roadmapVersion": 2,
+  "planVerified": true,
+  "plannedPrCount": 16,
+  "observedAt": "2026-10-11T17:38:28.617Z",
+  "units": [
+    {
+      "id": "MVA-01",
+      "title": "Validate models and record architecture",
+      "origin": "original",
+      "prs": [
+        1
+      ]
+    },
+    {
+      "id": "MVA-02",
+      "title": "Create the native application foundation",
+      "origin": "original",
+      "prs": [
+        2
+      ]
+    },
+    {
+      "id": "MVA-03",
+      "title": "Import tracks and save projects",
+      "origin": "original",
+      "prs": [
+        3
+      ]
+    },
+    {
+      "id": "MVA-04",
+      "title": "Run resumable analysis jobs",
+      "origin": "original",
+      "prs": [
+        4
+      ]
+    },
+    {
+      "id": "MVA-05",
+      "title": "Measure loudness and dynamic variation",
+      "origin": "original",
+      "prs": [
+        5
+      ]
+    },
+    {
+      "id": "MVA-06",
+      "title": "Measure tempo and tempo variation",
+      "origin": "original",
+      "prs": [
+        6
+      ]
+    },
+    {
+      "id": "MVA-07",
+      "title": "Estimate key and major or minor mode",
+      "origin": "original",
+      "prs": [
+        7
+      ]
+    },
+    {
+      "id": "MVA-08",
+      "title": "Add local models and genre candidates",
+      "origin": "original",
+      "prs": [
+        8
+      ]
+    },
+    {
+      "id": "MVA-09",
+      "title": "Estimate emotion from instrumental audio",
+      "origin": "original",
+      "prs": [
+        9
+      ]
+    },
+    {
+      "id": "MVA-10",
+      "title": "Create normalized comparison scales",
+      "origin": "original",
+      "prs": [
+        10
+      ]
+    },
+    {
+      "id": "MVA-11",
+      "title": "Generate two groups and an album order",
+      "origin": "original",
+      "prs": [
+        11
+      ]
+    },
+    {
+      "id": "MVA-12",
+      "title": "Complete the analysis and ordering interface",
+      "origin": "original",
+      "prs": [
+        12
+      ]
+    },
+    {
+      "id": "MVA-13",
+      "title": "Add anchors and personalized presets",
+      "origin": "original",
+      "prs": [
+        13
+      ]
+    },
+    {
+      "id": "MVA-14",
+      "title": "Export numbered folders with recovery",
+      "origin": "original",
+      "prs": [
+        14
+      ]
+    },
+    {
+      "id": "MVA-15",
+      "title": "Validate audio quality and batch performance",
+      "origin": "original",
+      "prs": [
+        15
+      ]
+    },
+    {
+      "id": "MVA-16",
+      "title": "Package and document the macOS release",
+      "origin": "original",
+      "prs": [
+        16
+      ]
+    }
+  ],
+  "pullRequests": [
+    {
+      "id": 4820003966,
+      "number": 18,
+      "title": "Fix Engine Room completion evidence for all 16 merged Music Analyzer PRs",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/18",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-11T15:04:39.000Z",
+      "updatedAt": "2026-10-11T17:10:38.000Z",
+      "closedAt": "2026-10-11T17:10:38.000Z",
+      "mergedAt": "2026-10-11T17:10:38.000Z",
+      "headSha": "c2bee8b61d143df5e7bd1823400e8dfac899df18",
+      "baseRef": "main",
+      "mergeCommitSha": "4cdc7759589cf57c7cb58574f28dc7c41ad4c52c"
+    },
+    {
+      "id": 4813292644,
+      "number": 17,
+      "title": "docs: deliver the verified Mac app with a first-run guide",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/17",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T17:56:17.000Z",
+      "updatedAt": "2026-10-10T18:04:11.000Z",
+      "closedAt": "2026-10-10T18:04:11.000Z",
+      "mergedAt": "2026-10-10T18:04:11.000Z",
+      "headSha": "9f3ebacb20206075cacf6ffce0592b69fe1c63a3",
+      "baseRef": "main",
+      "mergeCommitSha": "4f702bd4eb1a973dc77c6680557b4621dcc544f1"
+    },
+    {
+      "id": 4812580635,
+      "number": 16,
+      "title": "PR16: Package the native Mac app and preserve verified development handoff",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/16",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T16:06:09.000Z",
+      "updatedAt": "2026-10-10T17:15:26.000Z",
+      "closedAt": "2026-10-10T17:14:34.000Z",
+      "mergedAt": "2026-10-10T17:14:34.000Z",
+      "headSha": "f91860fb960b374271b1772e1a52faa7f9030f25",
+      "baseRef": "main",
+      "mergeCommitSha": "50b0c3cb11d8934c3123932e3bb458c86518c0a4"
+    },
+    {
+      "id": 4812311996,
+      "number": 15,
+      "title": "PR15: Validate 200-track batches and add held-out listening evaluation",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/15",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T15:26:40.000Z",
+      "updatedAt": "2026-10-10T16:23:43.000Z",
+      "closedAt": "2026-10-10T16:23:43.000Z",
+      "mergedAt": "2026-10-10T16:23:43.000Z",
+      "headSha": "6fd8607476019000d017052675c9271ec615c69c",
+      "baseRef": "main",
+      "mergeCommitSha": "17f761838e4ccbd37c4384f992429fda2f6ec52d"
+    },
+    {
+      "id": 4812190038,
+      "number": 14,
+      "title": "PR14: Export numbered folders with recovery and conflict-aware undo",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/14",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T15:09:04.000Z",
+      "updatedAt": "2026-10-10T16:22:58.000Z",
+      "closedAt": "2026-10-10T16:22:58.000Z",
+      "mergedAt": "2026-10-10T16:22:58.000Z",
+      "headSha": "f9b1e6fd4ca2cf92e07381c32b74b870964907e1",
+      "baseRef": "main",
+      "mergeCommitSha": "100efceff6f3f69e2233e8284082ad840c2c6c45"
+    },
+    {
+      "id": 4812099060,
+      "number": 13,
+      "title": "PR13: Add reference anchors and personal calibration",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/13",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:55:54.000Z",
+      "updatedAt": "2026-10-10T16:22:05.000Z",
+      "closedAt": "2026-10-10T16:22:05.000Z",
+      "mergedAt": "2026-10-10T16:22:05.000Z",
+      "headSha": "0b43f8bd2ab1386624a1b2f0aae7b12689736514",
+      "baseRef": "main",
+      "mergeCommitSha": "dfb8164871771c1d9b3dd0edc3fb67f0bde64556"
+    },
+    {
+      "id": 4812094726,
+      "number": 12,
+      "title": "PR12: Complete the native listening and review workspace",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/12",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:55:21.000Z",
+      "updatedAt": "2026-10-10T16:21:22.000Z",
+      "closedAt": "2026-10-10T16:21:22.000Z",
+      "mergedAt": "2026-10-10T16:21:22.000Z",
+      "headSha": "3e2cf15fefba1b39d00e0cdefb5aba8868b597d9",
+      "baseRef": "main",
+      "mergeCommitSha": "79b6d67eb26544ac1c05a8d089674312698b5456"
+    },
+    {
+      "id": 4812089030,
+      "number": 11,
+      "title": "PR11: Generate rising valence groups and an editable album proposal",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/11",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:54:40.000Z",
+      "updatedAt": "2026-10-10T16:20:36.000Z",
+      "closedAt": "2026-10-10T16:20:36.000Z",
+      "mergedAt": "2026-10-10T16:20:36.000Z",
+      "headSha": "a55cc80298ff3c2da17ee6f9f26cd74c4f37c2ce",
+      "baseRef": "main",
+      "mergeCommitSha": "e66293fcff856e23c47255fc9c06208ee12672e3"
+    },
+    {
+      "id": 4812085958,
+      "number": 10,
+      "title": "PR10: Normalize comparison scales and calibrate dynamics references",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/10",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:54:13.000Z",
+      "updatedAt": "2026-10-10T16:19:44.000Z",
+      "closedAt": "2026-10-10T16:19:44.000Z",
+      "mergedAt": "2026-10-10T16:19:44.000Z",
+      "headSha": "58895205ae74e60d0c6f72396cf8dbce3326d79f",
+      "baseRef": "main",
+      "mergeCommitSha": "e5f2896af08b0d49521342bd9616555feb585024"
+    },
+    {
+      "id": 4812083007,
+      "number": 9,
+      "title": "PR09: Estimate instrumental valence, arousal, and mood",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/9",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:53:51.000Z",
+      "updatedAt": "2026-10-10T16:18:58.000Z",
+      "closedAt": "2026-10-10T16:18:58.000Z",
+      "mergedAt": "2026-10-10T16:18:58.000Z",
+      "headSha": "613827004308deb4b7cd4d286ee35e25670f8a1f",
+      "baseRef": "main",
+      "mergeCommitSha": "3577482bd74ce350997e8683d14145d2e47f93ed"
+    },
+    {
+      "id": 4812040414,
+      "number": 8,
+      "title": "PR08: Install verified models and infer genres offline",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/8",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:47:06.000Z",
+      "updatedAt": "2026-10-10T16:18:14.000Z",
+      "closedAt": "2026-10-10T16:18:14.000Z",
+      "mergedAt": "2026-10-10T16:18:14.000Z",
+      "headSha": "9505cb3c1dc3de889848cd812719a3206ad782db",
+      "baseRef": "main",
+      "mergeCommitSha": "8cb3bb8b3d5f1229166f6389049a7a9d5ca8f9fa"
+    },
+    {
+      "id": 4812036691,
+      "number": 7,
+      "title": "PR07: Estimate key and major/minor mode with uncertainty",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/7",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:46:31.000Z",
+      "updatedAt": "2026-10-10T16:17:28.000Z",
+      "closedAt": "2026-10-10T16:17:28.000Z",
+      "mergedAt": "2026-10-10T16:17:28.000Z",
+      "headSha": "247c1ef2438593b9363cc1512a1cf10cee799986",
+      "baseRef": "main",
+      "mergeCommitSha": "2c535cb8282b7f48952a5540f712b10af87eb4a0"
+    },
+    {
+      "id": 4812033486,
+      "number": 6,
+      "title": "PR06: Estimate tempo, variability, and octave ambiguity",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/6",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:45:58.000Z",
+      "updatedAt": "2026-10-10T16:16:37.000Z",
+      "closedAt": "2026-10-10T16:16:37.000Z",
+      "mergedAt": "2026-10-10T16:16:36.000Z",
+      "headSha": "1ba734c36c8fac1b11eab328d76f07e108555223",
+      "baseRef": "main",
+      "mergeCommitSha": "87a1d181f1e3dbaa52241375fed796e564a89979"
+    },
+    {
+      "id": 4812030253,
+      "number": 5,
+      "title": "PR05: Measure loudness and dynamic variability",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/5",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:45:29.000Z",
+      "updatedAt": "2026-10-10T16:15:07.000Z",
+      "closedAt": "2026-10-10T16:15:07.000Z",
+      "mergedAt": "2026-10-10T16:15:07.000Z",
+      "headSha": "ee222b1aabb369e8a15a667065b48c561f2dc18a",
+      "baseRef": "main",
+      "mergeCommitSha": "eef365a66407441115eac2f0826df195a113327c"
+    },
+    {
+      "id": 4812026374,
+      "number": 4,
+      "title": "PR04: Run resumable bounded analysis workers",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/4",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:44:58.000Z",
+      "updatedAt": "2026-10-10T16:14:18.000Z",
+      "closedAt": "2026-10-10T16:14:18.000Z",
+      "mergedAt": "2026-10-10T16:14:18.000Z",
+      "headSha": "771b89a2777f89e0707b2ef52f5c5830ffac99b2",
+      "baseRef": "main",
+      "mergeCommitSha": "0456658dfea89225a2179b4c8a8c840852327280"
+    },
+    {
+      "id": 4812023311,
+      "number": 3,
+      "title": "PR03: Import recordings and persist identities and edits",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/3",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:44:33.000Z",
+      "updatedAt": "2026-10-10T16:13:16.000Z",
+      "closedAt": "2026-10-10T16:13:16.000Z",
+      "mergedAt": "2026-10-10T16:13:16.000Z",
+      "headSha": "93937b3948623175edf772d514c35f806d53882c",
+      "baseRef": "main",
+      "mergeCommitSha": "6da7a1afd231467e44397799e13f277345a4552d"
+    },
+    {
+      "id": 4812019784,
+      "number": 2,
+      "title": "PR02: Establish the native desktop application and CI",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/2",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:44:05.000Z",
+      "updatedAt": "2026-10-10T16:12:14.000Z",
+      "closedAt": "2026-10-10T16:12:14.000Z",
+      "mergedAt": "2026-10-10T16:12:14.000Z",
+      "headSha": "e0eadf86d8858684986512b76ce73e5285494328",
+      "baseRef": "main",
+      "mergeCommitSha": "190c05baf9f87f4e059affb56fdece75150b23fa"
+    },
+    {
+      "id": 4812013835,
+      "number": 1,
+      "title": "PR01: Audit architecture, model licenses, and release gates",
+      "url": "https://github.com/neophilism/Music-Analyzer/pull/1",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-10T14:43:16.000Z",
+      "updatedAt": "2026-10-10T16:10:11.000Z",
+      "closedAt": "2026-10-10T16:10:11.000Z",
+      "mergedAt": "2026-10-10T16:10:11.000Z",
+      "headSha": "70806519eb562d7ac103c324c2778d13e7ccd022",
+      "baseRef": "main",
+      "mergeCommitSha": "86872181f3a086d8dd605108444cb30bf7a08e4b"
+    }
+  ]
+}
