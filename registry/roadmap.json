@@ -1,7 +1,7 @@
 {
   "repository": "neophilism/Music-Analyzer",
   "title": "Music Analyzer",
-  "version": 1,
+  "version": 2,
   "planVerified": true,
   "plannedPrCount": 16,
   "sourceFiles": [
@@ -12,82 +12,130 @@
     {
       "id": "MVA-01",
       "title": "Validate models and record architecture",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        1
+      ]
     },
     {
       "id": "MVA-02",
       "title": "Create the native application foundation",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        2
+      ]
     },
     {
       "id": "MVA-03",
       "title": "Import tracks and save projects",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        3
+      ]
     },
     {
       "id": "MVA-04",
       "title": "Run resumable analysis jobs",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        4
+      ]
     },
     {
       "id": "MVA-05",
       "title": "Measure loudness and dynamic variation",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        5
+      ]
     },
     {
       "id": "MVA-06",
       "title": "Measure tempo and tempo variation",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        6
+      ]
     },
     {
       "id": "MVA-07",
       "title": "Estimate key and major or minor mode",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        7
+      ]
     },
     {
       "id": "MVA-08",
       "title": "Add local models and genre candidates",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        8
+      ]
     },
     {
       "id": "MVA-09",
       "title": "Estimate emotion from instrumental audio",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        9
+      ]
     },
     {
       "id": "MVA-10",
       "title": "Create normalized comparison scales",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        10
+      ]
     },
     {
       "id": "MVA-11",
       "title": "Generate two groups and an album order",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        11
+      ]
     },
     {
       "id": "MVA-12",
       "title": "Complete the analysis and ordering interface",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        12
+      ]
     },
     {
       "id": "MVA-13",
       "title": "Add anchors and personalized presets",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        13
+      ]
     },
     {
       "id": "MVA-14",
       "title": "Export numbered folders with recovery",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        14
+      ]
     },
     {
       "id": "MVA-15",
       "title": "Validate audio quality and batch performance",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        15
+      ]
     },
     {
       "id": "MVA-16",
       "title": "Package and document the macOS release",
-      "origin": "original"
+      "origin": "original",
+      "pullRequests": [
+        16
+      ]
     }
   ]
 }
