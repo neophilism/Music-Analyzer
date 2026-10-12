@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Validate repository-owned progress evidence; never issue certification."""
 import argparse
-from datetime import datetime, timezone
 import hashlib
 import json
-from pathlib import Path
 import re
 import subprocess
 import sys
+from datetime import UTC, datetime
+from pathlib import Path
 
 STATUS_PATH = "security/e2eesa-status.json"
 ALGORITHM = "git-blob-manifest-sha256-v1"
@@ -80,7 +80,7 @@ def validate(root, status):
         return
     checks = testing["checks"]
     require(len(checks) == len(GATES) and {c.get("kind") for c in checks} == GATES, "All six required gates must pass")
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     for check in checks:
         require(check.get("status") == "passed" and check.get("sourceDigest") == fingerprint, "Failed or mismatched source gate")
         completed = datetime.fromisoformat(check["completedAt"].replace("Z", "+00:00"))
