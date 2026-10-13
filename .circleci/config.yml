@@ -1,0 +1,146 @@
+version: 2.1
+
+# Replicates Linux + macOS core suites, 200-fixture benchmarks,
+# macOS 14 packaging and separate macOS 15 clean-install acceptance.
+# Manual signed/notarized release review remains controlled separately.
+jobs:
+  linux-core-and-benchmark:
+    docker:
+      - image: cimg/python:3.12
+    resource_class: large
+    environment:
+      QT_QPA_PLATFORM: offscreen
+      OMP_NUM_THREADS: "1"
+      NUMBA_NUM_THREADS: "1"
+    steps:
+      - checkout
+      - run:
+          name: Install native audio and Qt libraries
+          command: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0 libpulse0 ffmpeg
+      - run:
+          name: Install application and development test dependencies
+          command: python -m pip install -e '.[dev]'
+      - run:
+          name: Full lint, unit and behavioral testing on Linux
+          command: |
+            python -m ruff check .
+            python -m pytest
+      - run:
+          name: Benchmark real 200 mixed-format fixtures
+          command: python -m music_analyzer.benchmark --output benchmark-output/ci-200
+      - store_artifacts:
+          path: benchmark-output/ci-200
+
+  macos15-core-and-benchmark:
+    macos:
+      xcode: 16.4.0
+    resource_class: m4pro.medium
+    environment:
+      QT_QPA_PLATFORM: offscreen
+      OMP_NUM_THREADS: "1"
+      NUMBA_NUM_THREADS: "1"
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+    steps:
+      - checkout
+      - run:
+          name: Install the Python 3.12 runtime and dependencies
+          command: |
+            brew install python@3.12
+            python3.12 -m venv .venv
+            .venv/bin/python -m pip install -e '.[dev]'
+      - run:
+          name: Full lint and test suite on macOS 15
+          command: |
+            .venv/bin/python -m ruff check .
+            .venv/bin/python -m pytest
+      - run:
+          name: Benchmark real 200 mixed-format fixtures on macOS 15
+          command: .venv/bin/python -m music_analyzer.benchmark --output benchmark-output/ci-200
+      - store_artifacts:
+          path: benchmark-output/ci-200
+
+  macos14-real-package:
+    macos:
+      xcode: 15.4.0
+    resource_class: m4pro.medium
+    environment:
+      QT_QPA_PLATFORM: offscreen
+      OMP_NUM_THREADS: "1"
+      NUMBA_NUM_THREADS: "1"
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+    steps:
+      - checkout
+      - run:
+          name: Install pinned Python runtime, model and packaging dependencies
+          command: |
+            brew install python@3.12
+            python3.12 -m venv .venv
+            .venv/bin/python -m pip install -e '.[dev,models]'
+            .venv/bin/python -m music_analyzer --install-model model-pack
+      - run:
+          name: Actual offline model predictions and filename independence
+          command: |
+            HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 MUSIC_ANALYZER_TEST_MODEL=model-pack .venv/bin/python -m pytest tests/test_models.py
+      - run:
+          name: Collect license notices and compile frozen Apple silicon application
+          command: |
+            mkdir -p artifacts
+            .venv/bin/python packaging/collect_notices.py
+            .venv/bin/python -m pip freeze --exclude-editable > artifacts/macos-arm64-build-requirements.txt
+            .venv/bin/python -m PyInstaller --clean --noconfirm packaging/desktop.spec
+      - run:
+          name: Validate frozen package and unsigned offline model
+          command: |
+            env -u PYTHONPATH -u PYTHONHOME -u VIRTUAL_ENV "dist/Music Analyzer.app/Contents/MacOS/MusicAnalyzer" --verify-package --model-directory "$PWD/model-pack" --verification-report artifacts/macos-14-frozen.json
+            cat artifacts/macos-14-frozen.json
+            codesign --verify --deep --strict --verbose=2 "dist/Music Analyzer.app"
+            ditto -c -k --sequesterRsrc --keepParent "dist/Music Analyzer.app" artifacts/Music-Analyzer-macos-arm64-unsigned-review.zip
+            cp -R build/third-party-notices artifacts/third-party-notices
+            shasum -a 256 artifacts/Music-Analyzer-macos-arm64-unsigned-review.zip > artifacts/SHA256SUMS
+      - persist_to_workspace:
+          root: .
+          paths:
+            - artifacts
+      - store_artifacts:
+          path: artifacts
+
+  macos15-clean-install:
+    macos:
+      xcode: 16.4.0
+    resource_class: m4pro.medium
+    environment:
+      QT_QPA_PLATFORM: offscreen
+      OMP_NUM_THREADS: "1"
+      NUMBA_NUM_THREADS: "1"
+      PYTHONNOUSERSITE: "1"
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Verify transferred package digest and extract without Python dependencies
+          command: |
+            cd artifacts && shasum -a 256 -c SHA256SUMS
+            cd ..
+            ditto -x -k artifacts/Music-Analyzer-macos-arm64-unsigned-review.zip installed
+      - run:
+          name: Install model from packaged application
+          command: |
+            env -u PYTHONPATH -u PYTHONHOME -u VIRTUAL_ENV "installed/Music Analyzer.app/Contents/MacOS/MusicAnalyzer" --install-model "$PWD/model-pack"
+      - run:
+          name: Verify real offline app in clean macOS 15 runtime
+          command: |
+            HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 env -u PYTHONPATH -u PYTHONHOME -u VIRTUAL_ENV "installed/Music Analyzer.app/Contents/MacOS/MusicAnalyzer" --verify-package --model-directory "$PWD/model-pack" --verification-report macos-15-clean-install.json
+            cat macos-15-clean-install.json
+      - store_artifacts:
+          path: macos-15-clean-install.json
+
+workflows:
+  full-ci:
+    jobs:
+      - linux-core-and-benchmark
+      - macos15-core-and-benchmark
+      - macos14-real-package
+      - macos15-clean-install:
+          requires:
+            - macos14-real-package
