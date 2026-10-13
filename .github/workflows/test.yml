@@ -52,6 +52,13 @@ jobs:
       - run: python -m pip install -e '.[dev,models]'
       - name: Install pinned model explicitly
         run: python -m music_analyzer --install-model model-pack
+      - name: Preserve pinned, verified model once for clean-install acceptance
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-pinned-model-test-fixture
+          path: model-pack/
+          if-no-files-found: error
+          retention-days: 1
       - name: Test actual offline predictions and filename independence
         env:
           HF_HUB_OFFLINE: '1'
@@ -99,11 +106,17 @@ jobs:
         with:
           name: macos-arm64-review
           path: review-build
-      - name: Unpack and install model using the packaged application
+      # Reuse the exact pinned model installed and SHA-checked by mac-package.
+      # The clean-install acceptance must not redownload ~780 MB and hit a 429.
+      - uses: actions/download-artifact@v4
+        with:
+          name: macos-pinned-model-test-fixture
+          path: model-pack
+      - name: Unpack application with pinned model fixture from build job
         run: |
           unset PYTHONPATH PYTHONHOME VIRTUAL_ENV
           ditto -x -k review-build/Music-Analyzer-macos-arm64-unsigned-review.zip installed
-          "installed/Music Analyzer.app/Contents/MacOS/MusicAnalyzer" --install-model "$PWD/model-pack"
+          test -d model-pack
       - name: Verify offline without installing developer Python dependencies
         env:
           HF_HUB_OFFLINE: '1'
